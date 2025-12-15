@@ -1,0 +1,55 @@
+﻿# Gradle
+.gradle/
+build/
+gradle/wrapper/
+gradlew
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# IntelliJ Platform
+.intellijPlatform/
+
+# IntelliJ IDEA / Rider
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+!.idea/icon.png
+!.idea/runConfigurations/
+
+# Rider specific
+.idea_modules/
+
+# Build outputs
+build/
+dist/
+*.jar
+*.zip
+
+# Kotlin
+*.kotlin_module
+
+# Logs
+*.log
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Test outputs
+test-output.txt
+test-error.txt
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Plugin sandbox
+.idea-sandbox/
+
+# Internal documentation
+internal docs/
