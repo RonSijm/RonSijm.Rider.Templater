@@ -1,18 +1,18 @@
-package ronsijm.templater.parser
+﻿package ronsijm.templater.parser
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
+import ronsijm.templater.utils.ArgumentParser
 
-class ArgumentParserTest {
+/**
+ * Tests for ArgumentParser.parseArgumentString() method
+ * (Previously tested TemplateParser.parseArguments which was moved to ArgumentParser)
+ */
+class TemplateParserArgumentsTest {
 
-    private val parser = TemplateParser()
-
-    // Use reflection to access private parseArguments method
+    // Use ArgumentParser directly - no IntelliJ dependencies
     private fun parseArguments(argsString: String): List<Any?> {
-        val method = parser.javaClass.getDeclaredMethod("parseArguments", String::class.java)
-        method.isAccessible = true
-        @Suppress("UNCHECKED_CAST")
-        return method.invoke(parser, argsString) as List<Any?>
+        return ArgumentParser.parseArgumentString(argsString)
     }
 
     @Test

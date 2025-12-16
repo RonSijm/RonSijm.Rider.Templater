@@ -7,19 +7,7 @@ import ronsijm.templater.parser.TemplateContext
  * Implements tp.config.* properties
  */
 class ConfigModule(private val context: TemplateContext) {
-    
-    /**
-     * RunMode enum representing how Templater was launched
-     */
-    enum class RunMode {
-        CREATE_NEW_FROM_TEMPLATE,
-        APPEND_ACTIVE_FILE,
-        OVERWRITE_FILE,
-        OVERWRITE_ACTIVE_FILE,
-        DYNAMIC_PROCESSOR,
-        STARTUP_TEMPLATE
-    }
-    
+
     /**
      * Execute a config property access
      * @param property The property name

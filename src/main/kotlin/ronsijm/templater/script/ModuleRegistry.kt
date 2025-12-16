@@ -1,5 +1,9 @@
 ﻿package ronsijm.templater.script
 
+import ronsijm.templater.handlers.CancelledResult
+import ronsijm.templater.handlers.CommandResult
+import ronsijm.templater.handlers.ErrorResult
+import ronsijm.templater.handlers.OkValueResult
 import ronsijm.templater.handlers.generated.HandlerRegistry
 
 /**
@@ -27,7 +31,7 @@ class ModuleRegistry(private val context: ScriptContext) {
             return handleObsidianRequest(args)
         }
 
-        return HandlerRegistry.executeCommand(module, function, args, context.getTemplateContext())
+        return extractValue(HandlerRegistry.executeCommand(module, function, args, context.getTemplateContext()))
     }
 
     /** Handle tp.obsidian.request({url: x}) by extracting URL and calling web.request */
@@ -40,6 +44,22 @@ class ModuleRegistry(private val context: ScriptContext) {
             else -> return "[Error: Invalid argument for tp.obsidian.request]"
         }
 
-        return HandlerRegistry.executeCommand("web", "request", listOf(url), context.getTemplateContext())
+        return extractValue(HandlerRegistry.executeCommand("web", "request", listOf(url), context.getTemplateContext()))
+    }
+
+    /**
+     * Extract the underlying value from a CommandResult.
+     * For OkValueResult, returns the wrapped value.
+     * For CancelledResult, returns null.
+     * For ErrorResult, returns null.
+     * For OkResult, returns empty string.
+     */
+    private fun extractValue(result: CommandResult): Any? {
+        return when (result) {
+            is OkValueResult<*> -> result.value
+            is CancelledResult -> null
+            is ErrorResult -> null
+            else -> result.toString()
+        }
     }
 }

@@ -1,11 +1,15 @@
 ﻿package ronsijm.templater.parallel
 
+import ronsijm.templater.handlers.CancelledResult
+import ronsijm.templater.handlers.CommandResult
+import ronsijm.templater.handlers.OkValueResult
 import ronsijm.templater.handlers.generated.HandlerRegistry
 import ronsijm.templater.modules.*
 import ronsijm.templater.parser.TemplateContext
 import ronsijm.templater.parser.TemplateValidator
 import ronsijm.templater.script.ScriptEngine
 import ronsijm.templater.services.ServiceContainer
+import ronsijm.templater.settings.CancelBehavior
 import ronsijm.templater.utils.CommandExecutionHelper
 import ronsijm.templater.utils.ErrorMessages
 import ronsijm.templater.utils.Logging
@@ -98,11 +102,17 @@ class ParallelTemplateParser(
         moduleFactory: ModuleFactory
     ): Map<Int, String> {
         val results = mutableMapOf<Int, String>()
-        
+
         for (block in blocks) {
+            // Check if return was requested - stop processing further blocks
+            if (scriptEngine.isReturnRequested()) {
+                // For remaining blocks, keep original text or empty based on type
+                results[block.id] = ""
+                continue
+            }
             results[block.id] = executeBlock(block, scriptEngine, context, moduleFactory)
         }
-        
+
         return results
     }
 
@@ -180,7 +190,15 @@ class ParallelTemplateParser(
                     if (varValue != null) {
                         varValue.toString()
                     } else {
-                        executeCommand(block.command, context, moduleFactory)
+                        val result = executeCommand(block.command, context, moduleFactory)
+                        // CancelledResult means user cancelled - check cancel behavior setting
+                        when (result) {
+                            is CancelledResult -> when (services.settings.cancelBehavior) {
+                                CancelBehavior.KEEP_EXPRESSION -> block.matchText
+                                CancelBehavior.REMOVE_EXPRESSION -> ""
+                            }
+                            else -> result.toString()
+                        }
                     }
                 }
             }
@@ -190,18 +208,22 @@ class ParallelTemplateParser(
         }
     }
 
+    /**
+     * Execute a command.
+     * @return [CommandResult] representing the outcome of the command
+     */
     private fun executeCommand(
         command: String,
         context: TemplateContext,
         moduleFactory: ModuleFactory
-    ): String {
+    ): CommandResult {
         // Remove 'await' keyword if present
         val withoutAwait = if (command.startsWith("await ")) command.substring(6).trim() else command
         val normalized = if (withoutAwait.startsWith("tp.")) withoutAwait.substring(3) else withoutAwait
 
         // Extract module name (first part before .) - don't split on dots inside arguments
         val dotIndex = normalized.indexOf('.')
-        if (dotIndex == -1) return ""
+        if (dotIndex == -1) return OkValueResult("")
 
         val module = normalized.substring(0, dotIndex)
         val rest = normalized.substring(dotIndex + 1) // Everything after module.
@@ -211,13 +233,14 @@ class ParallelTemplateParser(
             "frontmatter" -> {
                 // Frontmatter needs the full path split (but only outside of parentheses)
                 val frontmatterParts = splitOutsideParentheses(normalized)
-                moduleFactory.getFrontmatterModule().getValue(frontmatterParts)?.toString() ?: ""
+                OkValueResult(moduleFactory.getFrontmatterModule().getValue(frontmatterParts)?.toString() ?: "")
             }
             "date" -> CommandExecutionHelper.executeDateCommand(parts, context, errorOnMissingParts = false)
             "file" -> CommandExecutionHelper.executeFileCommand(parts, context, errorOnMissingParts = false)
+            // system commands can return CancelledResult when cancelled
             "system" -> CommandExecutionHelper.executeSystemCommand(parts, context, errorOnMissingParts = false)
-            "config" -> moduleFactory.getConfigModule().executeProperty(rest.substringBefore("(").substringBefore(".")) ?: ""
-            else -> ""
+            "config" -> OkValueResult(moduleFactory.getConfigModule().executeProperty(rest.substringBefore("(").substringBefore(".")) ?: "")
+            else -> OkValueResult("")
         }
     }
 

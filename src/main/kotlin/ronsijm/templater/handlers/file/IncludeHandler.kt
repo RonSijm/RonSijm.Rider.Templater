@@ -7,7 +7,8 @@ import ronsijm.templater.parser.TemplateContext
 @RegisterHandler(
     module = "file",
     description = "Includes/reads the contents of a file",
-    example = "include('path/to/file.md')"
+    example = "include('path/to/file.md')",
+    pure = true
 )
 class IncludeHandler : CommandHandler<IncludeRequest, String> {
     override fun handle(request: IncludeRequest, context: TemplateContext): String {

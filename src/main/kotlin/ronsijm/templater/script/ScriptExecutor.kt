@@ -139,8 +139,24 @@ class ScriptExecutor(
     private fun evaluateCondition(condition: String): Boolean {
         val trimmed = condition.trim()
 
-        // Handle comparison operators
+        // Handle comparison operators - check longer operators first to avoid partial matches
         when {
+            trimmed.contains("===") -> {
+                val parts = trimmed.split("===").map { it.trim() }
+                if (parts.size == 2) {
+                    val left = evaluator.evaluateExpression(parts[0])
+                    val right = evaluator.evaluateExpression(parts[1])
+                    return left == right  // Strict equality
+                }
+            }
+            trimmed.contains("!==") -> {
+                val parts = trimmed.split("!==").map { it.trim() }
+                if (parts.size == 2) {
+                    val left = evaluator.evaluateExpression(parts[0])
+                    val right = evaluator.evaluateExpression(parts[1])
+                    return left != right  // Strict inequality
+                }
+            }
             trimmed.contains("<=") -> {
                 val parts = trimmed.split("<=").map { it.trim() }
                 if (parts.size == 2) {
@@ -206,13 +222,19 @@ class ScriptExecutor(
      * Compare two values
      */
     private fun compareValues(left: Any?, right: Any?): Int {
+        // Handle null comparisons explicitly
+        if (left == null && right == null) return 0
+        if (left == null) return -1  // null is "less than" non-null
+        if (right == null) return 1  // non-null is "greater than" null
+
         if (left is Number && right is Number) {
             return left.toDouble().compareTo(right.toDouble())
         }
         if (left is String && right is String) {
             return left.compareTo(right)
         }
-        return 0
+        // For other types, compare string representations
+        return left.toString().compareTo(right.toString())
     }
 
     /**
@@ -224,8 +246,17 @@ class ScriptExecutor(
 
         if (stmt.isEmpty()) return
 
+        // Check if return was already requested
+        if (scriptContext.isReturnRequested()) return
+
         // Skip braces
         if (stmt == "{" || stmt == "}") return
+
+        // Return statement: return or return;
+        if (stmt == "return" || stmt == "return;") {
+            scriptContext.requestReturn()
+            return
+        }
 
         // Variable declaration: let x = value
         if (stmt.startsWith("let ") || stmt.startsWith("const ") || stmt.startsWith("var ")) {
@@ -239,8 +270,8 @@ class ScriptExecutor(
             return
         }
 
-        // Assignment: x = value
-        if (stmt.contains("=") && !stmt.contains("==")) {
+        // Assignment: x = value (but not arrow functions or comparisons)
+        if (stmt.contains("=") && !stmt.contains("==") && !stmt.contains("=>")) {
             executeAssignment(stmt)
             return
         }

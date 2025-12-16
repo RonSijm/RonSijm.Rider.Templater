@@ -25,10 +25,9 @@ class CommandAdapterTest {
         val context = TestContextFactory.create()
 
         // Call using old Command interface with List<Any?>
-        val result = command.execute(listOf("yyyy-MM-dd"), context)
+        val result = command.execute(listOf("yyyy-MM-dd"), context).toString()
 
-        assertNotNull(result)
-        assertTrue(result!!.matches(Regex("\\d{4}-\\d{2}-\\d{2}")))
+        assertTrue(result.matches(Regex("\\d{4}-\\d{2}-\\d{2}")))
     }
 
     @Test
@@ -36,10 +35,9 @@ class CommandAdapterTest {
         val command = getCommand("date", "now")
         val context = TestContextFactory.create()
 
-        val result = command.execute(listOf("yyyy-MM-dd HH:mm"), context)
+        val result = command.execute(listOf("yyyy-MM-dd HH:mm"), context).toString()
 
-        assertNotNull(result)
-        assertTrue(result!!.matches(Regex("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}")))
+        assertTrue(result.matches(Regex("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}")))
     }
 
     @Test
@@ -61,7 +59,7 @@ class CommandAdapterTest {
         val command = getCommand("file", "creation_date")
 
         // Call using old Command interface
-        val result = command.execute(listOf("yyyy-MM-dd HH:mm"), context)
+        val result = command.execute(listOf("yyyy-MM-dd HH:mm"), context).toString()
 
         assertEquals("2025-01-15 14:30", result)
     }
@@ -82,10 +80,9 @@ class CommandAdapterTest {
         val context = TestContextFactory.create()
 
         // Call with no arguments - should use defaults
-        val result = command.execute(emptyList(), context)
+        val result = command.execute(emptyList(), context).toString()
 
-        assertNotNull(result)
-        assertTrue(result!!.matches(Regex("\\d{4}-\\d{2}-\\d{2}")))
+        assertTrue(result.matches(Regex("\\d{4}-\\d{2}-\\d{2}")))
     }
 
     @Test
@@ -93,10 +90,9 @@ class CommandAdapterTest {
         val command = getCommand("date", "weekday")
         val context = TestContextFactory.create()
 
-        val result = command.execute(listOf("yyyy-MM-dd", 0), context)
+        val result = command.execute(listOf("yyyy-MM-dd", 0), context).toString()
 
-        assertNotNull(result)
-        assertTrue(result!!.matches(Regex("\\d{4}-\\d{2}-\\d{2}")))
+        assertTrue(result.matches(Regex("\\d{4}-\\d{2}-\\d{2}")))
     }
 }
 

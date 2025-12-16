@@ -1,4 +1,4 @@
-package ronsijm.templater.modules
+﻿package ronsijm.templater.handlers.system
 
 import ronsijm.templater.TestContextFactory
 import ronsijm.templater.handlers.generated.HandlerRegistry
@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
 /**
- * Tests for system module commands using HandlerRegistry
+ * Tests for system handlers using HandlerRegistry
  */
-class SystemModuleTest {
+class SystemHandlersTest {
 
-    private fun executeSystem(command: String, args: List<Any?> = emptyList(), context: TemplateContext): String? {
-        return HandlerRegistry.executeCommand("system", command, args, context)
+    private fun executeSystem(command: String, args: List<Any?> = emptyList(), context: TemplateContext): String {
+        return HandlerRegistry.executeCommand("system", command, args, context).toString()
     }
 
     @Test

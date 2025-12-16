@@ -7,7 +7,7 @@
 }
 
 group = "ronsijm.templater"
-version = "1.0.1"
+version = "1.0.2"
 
 repositories {
     mavenCentral()
@@ -52,7 +52,7 @@ intellijPlatform {
     pluginConfiguration {
         id = "ronsijm.templater"
         name = "Templater"
-        version = "1.0.1"
+        version = "1.0.2"
         description = "Template engine for JetBrains IDEs with Obsidian Templater-like syntax"
 
         ideaVersion {
@@ -103,9 +103,6 @@ tasks {
         classpath = sourceSets["test"].runtimeClasspath
 
         useJUnitPlatform()
-
-        // Exclude tests that require IntelliJ Platform dependencies
-        exclude("**/ArgumentParserTest.class")
 
         testLogging {
             events("passed", "skipped", "failed")

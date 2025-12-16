@@ -58,6 +58,13 @@ object ArrayMethodExecutor {
             "find" -> executeFind(list, args, arrowExecutor)
             "some" -> executeSome(list, args, arrowExecutor)
             "every" -> executeEvery(list, args, arrowExecutor)
+            "forEach" -> executeForEach(list, args, arrowExecutor)
+            "push" -> executePush(list, args)
+            "pop" -> executePop(list)
+            "shift" -> executeShift(list)
+            "concat" -> executeConcat(list, args)
+            "flat" -> executeFlat(list, args)
+            "sort" -> executeSort(list, args, arrowExecutor)
             else -> null
         }
     }
@@ -145,6 +152,120 @@ object ArrayMethodExecutor {
     }
 
     /**
+     * Execute forEach - iterates over each element and calls the callback
+     * Returns undefined (null) like JavaScript
+     */
+    private fun executeForEach(
+        list: List<*>,
+        args: List<Any?>,
+        arrowExecutor: ArrowFunctionExecutor
+    ): Any? {
+        val callback = args.getOrNull(0)
+        if (callback is ArrowFunction) {
+            list.forEachIndexed { index, item ->
+                // forEach callback receives (item, index, array)
+                arrowExecutor(callback, listOf(item, index, list))
+            }
+        }
+        return null // forEach returns undefined in JavaScript
+    }
+
+    /**
+     * Execute push - adds elements to the end of the list
+     * If the list is mutable, modifies it in place and returns the new length (like JavaScript)
+     * Otherwise returns a new list with the elements added
+     */
+    private fun executePush(list: List<*>, args: List<Any?>): Any {
+        if (list is MutableList<*>) {
+            @Suppress("UNCHECKED_CAST")
+            val mutableList = list as MutableList<Any?>
+            args.forEach { mutableList.add(it) }
+            return mutableList.size // JavaScript push returns the new length
+        }
+        return list + args
+    }
+
+    /**
+     * Execute pop - removes and returns the last element
+     * If the list is mutable, modifies it in place (like JavaScript)
+     * Returns the removed element (or null if empty)
+     */
+    private fun executePop(list: List<*>): Any? {
+        if (list is MutableList<*> && list.isNotEmpty()) {
+            return list.removeAt(list.size - 1)
+        }
+        return list.lastOrNull()
+    }
+
+    /**
+     * Execute shift - removes and returns the first element
+     * If the list is mutable, modifies it in place (like JavaScript)
+     * Returns the removed element (or null if empty)
+     */
+    private fun executeShift(list: List<*>): Any? {
+        if (list is MutableList<*> && list.isNotEmpty()) {
+            return list.removeAt(0)
+        }
+        return list.firstOrNull()
+    }
+
+    /**
+     * Execute concat - merges arrays
+     */
+    private fun executeConcat(list: List<*>, args: List<Any?>): List<*> {
+        val result = list.toMutableList()
+        for (arg in args) {
+            when (arg) {
+                is List<*> -> result.addAll(arg)
+                else -> result.add(arg)
+            }
+        }
+        return result
+    }
+
+    /**
+     * Execute flat - flattens nested arrays
+     */
+    private fun executeFlat(list: List<*>, args: List<Any?>): List<*> {
+        val depth = (args.getOrNull(0) as? Number)?.toInt() ?: 1
+        return flattenList(list, depth)
+    }
+
+    private fun flattenList(list: List<*>, depth: Int): List<*> {
+        if (depth <= 0) return list
+        val result = mutableListOf<Any?>()
+        for (item in list) {
+            if (item is List<*>) {
+                result.addAll(flattenList(item, depth - 1))
+            } else {
+                result.add(item)
+            }
+        }
+        return result
+    }
+
+    /**
+     * Execute sort - sorts the array
+     * If a comparator function is provided, uses it; otherwise sorts naturally
+     */
+    private fun executeSort(
+        list: List<*>,
+        args: List<Any?>,
+        arrowExecutor: ArrowFunctionExecutor
+    ): List<*> {
+        val callback = args.getOrNull(0)
+        return if (callback is ArrowFunction) {
+            list.sortedWith { a, b ->
+                val result = arrowExecutor(callback, listOf(a, b))
+                (result as? Number)?.toInt() ?: 0
+            }
+        } else {
+            // Default: sort as strings
+            list.sortedBy { it?.toString() ?: "" }
+        }
+    }
+
+    /**
      * Check if a method name is a supported array method
      */
     fun isSupported(methodName: String): Boolean {
@@ -153,7 +274,8 @@ object ArrayMethodExecutor {
 
     private val SUPPORTED_METHODS = setOf(
         "length", "join", "includes", "contains", "indexOf",
-        "slice", "reverse", "filter", "map", "find", "some", "every"
+        "slice", "reverse", "filter", "map", "find", "some", "every",
+        "forEach", "push", "pop", "shift", "concat", "flat", "sort"
     )
 }
 

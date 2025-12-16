@@ -10,10 +10,14 @@ class ScriptContext(private val templateContext: TemplateContext) {
     private val variables = mutableMapOf<String, Any?>()
     private var resultAccumulator = StringBuilder()
 
+    /** Flag to indicate early return from script execution */
+    private var returnRequested = false
+
     val frontmatterModule by lazy { FrontmatterModule(templateContext) }
 
     fun initializeResultAccumulator(currentOutput: String) {
         resultAccumulator = StringBuilder(currentOutput)
+        returnRequested = false // Reset return flag for new execution
     }
 
     fun getResultAccumulator() = resultAccumulator.toString()
@@ -26,11 +30,13 @@ class ScriptContext(private val templateContext: TemplateContext) {
     fun hasVariable(name: String) = variables.containsKey(name)
 
     fun getTemplateContext() = templateContext
-}
 
-/** Represents an arrow function: (params) => body */
-data class ArrowFunction(
-    val parameters: List<String>,
-    val body: String,
-    val isExpression: Boolean = true  // true for `x => x + 1`, false for `x => { return x + 1 }`
-)
+    /** Request early return from script execution */
+    fun requestReturn() { returnRequested = true }
+
+    /** Check if return has been requested */
+    fun isReturnRequested() = returnRequested
+
+    /** Reset the return flag */
+    fun resetReturn() { returnRequested = false }
+}

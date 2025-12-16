@@ -59,9 +59,9 @@ tR += "Good evening! ??";
     @Test
     fun `test if else with tR - false condition`() {
         val engine = ScriptEngine(TestContextFactory.create())
-        
+
         engine.initializeResultAccumulator("")
-        
+
         val script = """
             const x = 2;
             if (x > 3) {
@@ -70,13 +70,79 @@ tR += "Good evening! ??";
                 tR += "x is not greater than 3";
             }
         """.trimIndent()
-        
+
         println("=== IF/ELSE FALSE CONDITION TEST ===")
         engine.execute(script)
         val tRValue = engine.getResultAccumulator()
         println("tR: '$tRValue'")
-        
+
         assertEquals("x is not greater than 3", tRValue, "Expected tR to contain the else message")
+    }
+
+    @Test
+    fun `test if with not null check - variable has value`() {
+        val engine = ScriptEngine(TestContextFactory.create())
+
+        engine.initializeResultAccumulator("")
+
+        val script = """
+            let calloutType = "note";
+            if (calloutType != null) {
+                tR += "callout is: " + calloutType;
+            }
+        """.trimIndent()
+
+        engine.execute(script)
+        val tRValue = engine.getResultAccumulator()
+
+        assertEquals("callout is: note", tRValue, "Expected tR to contain the callout type")
+    }
+
+    @Test
+    fun `test if with not null check - variable is null`() {
+        val engine = ScriptEngine(TestContextFactory.create())
+
+        engine.initializeResultAccumulator("")
+
+        val script = """
+            let calloutType = null;
+            if (calloutType != null) {
+                tR += "callout is: " + calloutType;
+            } else {
+                tR += "no callout selected";
+            }
+        """.trimIndent()
+
+        engine.execute(script)
+        val tRValue = engine.getResultAccumulator()
+
+        assertEquals("no callout selected", tRValue, "Expected tR to contain the else message when variable is null")
+    }
+
+    @Test
+    fun `test callout template pattern`() {
+        val engine = ScriptEngine(TestContextFactory.create())
+
+        engine.initializeResultAccumulator("")
+
+        // Simulates the callout template pattern
+        val script = """
+            let calloutType = "warning";
+            let foldState = "+";
+            let title = "Important";
+            let calloutContent = "This is the content";
+            if (calloutType != null) {
+                let content = "> [!" + calloutType + "]" + foldState + " " + title + "\n> " + calloutContent + "\n";
+                tR += content;
+            }
+        """.trimIndent()
+
+        engine.execute(script)
+        val tRValue = engine.getResultAccumulator()
+
+        assertTrue(tRValue.contains("> [!warning]+"), "Expected callout header")
+        assertTrue(tRValue.contains("Important"), "Expected title")
+        assertTrue(tRValue.contains("This is the content"), "Expected content")
     }
 }
 

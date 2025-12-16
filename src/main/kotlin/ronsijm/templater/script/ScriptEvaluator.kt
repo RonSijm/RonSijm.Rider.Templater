@@ -1,12 +1,11 @@
 ﻿package ronsijm.templater.script
 
-import ronsijm.templater.script.methods.ArrayMethodExecutor
-import ronsijm.templater.script.methods.StringMethodExecutor
+import ronsijm.templater.script.evaluators.*
 import ronsijm.templater.utils.Logging
 
 /**
- * Evaluator for script expressions
- * Handles expression evaluation, template literals, concatenation, and function calls
+ * Evaluator for script expressions.
+ * Delegates to specialized evaluators for different expression types (SOLID: Single Responsibility).
  */
 class ScriptEvaluator(
     private val scriptContext: ScriptContext,
@@ -17,8 +16,47 @@ class ScriptEvaluator(
         private val LOG = Logging.getLogger<ScriptEvaluator>()
     }
 
+    // Statement executor for multi-statement arrow function bodies
+    // Set via setStatementExecutor() after ScriptExecutor is created
+    private var statementExecutor: ((String) -> Unit)? = null
+
+    // Lazy-initialized evaluators to avoid circular dependencies
+    private val literalParser: LiteralParser by lazy {
+        LiteralParser { evaluateExpression(it) }
+    }
+
+    private val arithmeticEvaluator: ArithmeticEvaluator by lazy {
+        ArithmeticEvaluator({ evaluateExpression(it) }, literalParser)
+    }
+
+    private val arrowFunctionHandler: ArrowFunctionHandler by lazy {
+        ArrowFunctionHandler(scriptContext, { evaluateExpression(it) }) { statementExecutor }
+    }
+
+    private val templateLiteralEvaluator: TemplateLiteralEvaluator by lazy {
+        TemplateLiteralEvaluator { evaluateExpression(it) }
+    }
+
+    private val functionCallExecutor: FunctionCallExecutor by lazy {
+        FunctionCallExecutor(
+            scriptContext,
+            moduleRegistry,
+            { evaluateExpression(it) },
+            { fn, args -> executeArrowFunction(fn, args) }
+        )
+    }
+
     /**
-     * Evaluate an expression and return its value
+     * Set the statement executor for multi-statement arrow function bodies.
+     * Must be called before any arrow functions with block bodies are executed.
+     */
+    fun setStatementExecutor(executor: (String) -> Unit) {
+        this.statementExecutor = executor
+    }
+
+    /**
+     * Evaluate an expression and return its value.
+     * Delegates to specialized evaluators based on expression type.
      */
     fun evaluateExpression(expression: String): Any? {
         val expr = expression.trim()
@@ -30,38 +68,50 @@ class ScriptEvaluator(
             expr
         }
 
+        // Handle logical NOT operator (!)
+        // Must be before other checks since !variable should negate the variable's value
+        if (cleanExpr.startsWith("!") && cleanExpr.length > 1 && cleanExpr[1] != '=') {
+            val innerExpr = cleanExpr.substring(1).trim()
+            val innerValue = evaluateExpression(innerExpr)
+            return !isTruthy(innerValue)
+        }
+
         // Check for arrow functions FIRST (before arithmetic, since arrow body may contain operators)
-        // Only match if => is at the top level (not inside parentheses like in function calls)
-        if (isTopLevelArrowFunction(cleanExpr)) {
-            return parseArrowFunction(cleanExpr)
+        if (arrowFunctionHandler.isTopLevelArrowFunction(cleanExpr)) {
+            return arrowFunctionHandler.parseArrowFunction(cleanExpr)
+        }
+
+        // Check for logical operators (&&, ||) - must be before comparison/arithmetic
+        val logicalOpIndex = findTopLevelLogicalOperator(cleanExpr)
+        if (logicalOpIndex != null) {
+            return evaluateLogicalExpression(cleanExpr, logicalOpIndex)
         }
 
         // Check for comparison expressions (>, <, >=, <=, ==, !=)
-        val comparisonOp = findComparisonOperator(cleanExpr)
+        val comparisonOp = arithmeticEvaluator.findComparisonOperator(cleanExpr)
         if (comparisonOp != null) {
-            return evaluateComparison(cleanExpr, comparisonOp)
+            return arithmeticEvaluator.evaluateComparison(cleanExpr, comparisonOp)
         }
 
         // Check for arithmetic expressions (*, /, -, + with numbers)
-        // This handles expressions like "x * 2", "counter + 1", "y - x"
-        val arithmeticOp = findArithmeticOperator(cleanExpr)
+        val arithmeticOp = arithmeticEvaluator.findArithmeticOperator(cleanExpr)
         if (arithmeticOp != null) {
-            return evaluateArithmetic(cleanExpr, arithmeticOp)
+            return arithmeticEvaluator.evaluateArithmetic(cleanExpr, arithmeticOp)
         }
 
         // Check if it's a template literal (backticks)
-        if (cleanExpr.startsWith("`") && cleanExpr.endsWith("`")) {
+        if (LiteralParser.isTemplateLiteral(cleanExpr)) {
             return evaluateTemplateLiteral(cleanExpr.substring(1, cleanExpr.length - 1))
         }
 
         // Check if it's a string literal
-        if (cleanExpr.startsWith("\"") && cleanExpr.endsWith("\"")) {
-            return cleanExpr.substring(1, cleanExpr.length - 1)
+        if (LiteralParser.isDoubleQuotedString(cleanExpr)) {
+            return literalParser.parseStringLiteral(cleanExpr)
         }
 
         // Check if it's a single-quote string literal
-        if (cleanExpr.startsWith("'") && cleanExpr.endsWith("'")) {
-            return cleanExpr.substring(1, cleanExpr.length - 1)
+        if (LiteralParser.isSingleQuotedString(cleanExpr)) {
+            return literalParser.parseStringLiteral(cleanExpr)
         }
 
         // Check if it's the tR variable
@@ -72,15 +122,16 @@ class ScriptEvaluator(
         // Check if it's a boolean literal (must come before variable check)
         if (cleanExpr == "true") return true
         if (cleanExpr == "false") return false
+        if (cleanExpr == "null") return null
 
         // Check if it's an array literal: [1, 2, 3] or ["a", "b"]
-        if (cleanExpr.startsWith("[") && cleanExpr.endsWith("]")) {
-            return parseArrayLiteral(cleanExpr)
+        if (LiteralParser.isArrayLiteral(cleanExpr)) {
+            return literalParser.parseArrayLiteral(cleanExpr)
         }
 
         // Check if it's an object literal: { key: value, ... }
-        if (cleanExpr.startsWith("{") && cleanExpr.endsWith("}")) {
-            return parseObjectLiteral(cleanExpr)
+        if (LiteralParser.isObjectLiteral(cleanExpr)) {
+            return literalParser.parseObjectLiteral(cleanExpr)
         }
 
         // Check if it's a variable reference
@@ -88,9 +139,10 @@ class ScriptEvaluator(
             return scriptContext.getVariable(cleanExpr)
         }
 
-        // Check if it's array indexing: arr[0] or arr[i]
-        if (cleanExpr.matches(Regex("[a-zA-Z_][a-zA-Z0-9_]*\\[.+\\]"))) {
-            return evaluateArrayAccess(cleanExpr)
+        // Check if it's array indexing: arr[0] or arr[i] or arr[key].method()
+        // Match variable name followed by [...] and optionally more stuff after
+        if (cleanExpr.matches(Regex("[a-zA-Z_][a-zA-Z0-9_]*\\[.+\\].*"))) {
+            return evaluateArrayAccessWithChain(cleanExpr)
         }
 
         // Check if it's a property access on a variable (e.g., arr.length, str.length)
@@ -100,7 +152,7 @@ class ScriptEvaluator(
 
         // Check if it's a new Date() call
         if (cleanExpr.startsWith("new Date(")) {
-            return createDateObject(cleanExpr)
+            return DateObject()
         }
 
         // Check if it's a function call (contains parentheses)
@@ -121,232 +173,20 @@ class ScriptEvaluator(
         return cleanExpr
     }
 
-    /**
-     * Find an arithmetic operator outside of quotes/parentheses
-     * Returns the operator and its position, or null if not found
-     * Checks operators in order of precedence (lowest first): +, -, *, /
-     */
-    private fun findArithmeticOperator(expression: String): Pair<Char, Int>? {
-        var inQuotes = false
-        var quoteChar = ' '
-        var parenDepth = 0
-
-        // First pass: look for + or - (lowest precedence)
-        for (i in expression.indices) {
-            val char = expression[i]
-            when {
-                (char == '"' || char == '\'' || char == '`') && !inQuotes -> {
-                    inQuotes = true
-                    quoteChar = char
-                }
-                char == quoteChar && inQuotes -> {
-                    inQuotes = false
-                }
-                char == '(' && !inQuotes -> parenDepth++
-                char == ')' && !inQuotes -> parenDepth--
-                (char == '+' || char == '-') && !inQuotes && parenDepth == 0 && i > 0 -> {
-                    // Make sure it's not a unary operator (check previous non-space char)
-                    val prevNonSpace = expression.substring(0, i).trimEnd().lastOrNull()
-                    if (prevNonSpace != null && prevNonSpace !in listOf('(', ',', '=', '+', '-', '*', '/')) {
-                        return Pair(char, i)
-                    }
-                }
-            }
-        }
-
-        // Reset for second pass
-        inQuotes = false
-        parenDepth = 0
-
-        // Second pass: look for * or / (higher precedence)
-        for (i in expression.indices) {
-            val char = expression[i]
-            when {
-                (char == '"' || char == '\'' || char == '`') && !inQuotes -> {
-                    inQuotes = true
-                    quoteChar = char
-                }
-                char == quoteChar && inQuotes -> {
-                    inQuotes = false
-                }
-                char == '(' && !inQuotes -> parenDepth++
-                char == ')' && !inQuotes -> parenDepth--
-                (char == '*' || char == '/') && !inQuotes && parenDepth == 0 -> {
-                    return Pair(char, i)
-                }
-            }
-        }
-
-        return null
-    }
-
-    /**
-     * Evaluate an arithmetic expression
-     * Handles +, -, *, / operations
-     */
-    private fun evaluateArithmetic(expression: String, operatorInfo: Pair<Char, Int>): Any? {
-        val (operator, position) = operatorInfo
-        val leftExpr = expression.substring(0, position).trim()
-        val rightExpr = expression.substring(position + 1).trim()
-
-        val leftValue = evaluateExpression(leftExpr)
-        val rightValue = evaluateExpression(rightExpr)
-
-        // If both are numbers, do arithmetic
-        val leftNum = toNumber(leftValue)
-        val rightNum = toNumber(rightValue)
-
-        if (leftNum != null && rightNum != null) {
-            return when (operator) {
-                '+' -> if (leftNum is Int && rightNum is Int) leftNum + rightNum else leftNum.toDouble() + rightNum.toDouble()
-                '-' -> if (leftNum is Int && rightNum is Int) leftNum - rightNum else leftNum.toDouble() - rightNum.toDouble()
-                '*' -> if (leftNum is Int && rightNum is Int) leftNum * rightNum else leftNum.toDouble() * rightNum.toDouble()
-                '/' -> if (leftNum is Int && rightNum is Int && rightNum != 0 && leftNum % rightNum == 0) {
-                    leftNum / rightNum
-                } else {
-                    leftNum.toDouble() / rightNum.toDouble()
-                }
-                else -> null
-            }
-        }
-
-        // If + and at least one is a string, do concatenation
-        if (operator == '+') {
-            return (leftValue?.toString() ?: "") + (rightValue?.toString() ?: "")
-        }
-
-        // Can't do arithmetic on non-numbers for -, *, /
-        return null
-    }
-
-    /**
-     * Find a comparison operator outside of quotes/parentheses
-     * Returns the operator string and its position, or null if not found
-     * Checks: >=, <=, ==, !=, >, <
-     */
-    private fun findComparisonOperator(expression: String): Pair<String, Int>? {
-        var inQuotes = false
-        var quoteChar = ' '
-        var parenDepth = 0
-
-        // Check for two-character operators first: >=, <=, ==, !=
-        for (i in 0 until expression.length - 1) {
-            val char = expression[i]
-            val nextChar = expression[i + 1]
-            when {
-                (char == '"' || char == '\'' || char == '`') && !inQuotes -> {
-                    inQuotes = true
-                    quoteChar = char
-                }
-                char == quoteChar && inQuotes -> {
-                    inQuotes = false
-                }
-                char == '(' && !inQuotes -> parenDepth++
-                char == ')' && !inQuotes -> parenDepth--
-                !inQuotes && parenDepth == 0 -> {
-                    val twoChar = "$char$nextChar"
-                    if (twoChar in listOf(">=", "<=", "==", "!=")) {
-                        return Pair(twoChar, i)
-                    }
-                }
-            }
-        }
-
-        // Check for single-character operators: >, <
-        inQuotes = false
-        parenDepth = 0
-        for (i in expression.indices) {
-            val char = expression[i]
-            when {
-                (char == '"' || char == '\'' || char == '`') && !inQuotes -> {
-                    inQuotes = true
-                    quoteChar = char
-                }
-                char == quoteChar && inQuotes -> {
-                    inQuotes = false
-                }
-                char == '(' && !inQuotes -> parenDepth++
-                char == ')' && !inQuotes -> parenDepth--
-                (char == '>' || char == '<') && !inQuotes && parenDepth == 0 -> {
-                    // Make sure it's not part of => or >= or <=
-                    val prevChar = if (i > 0) expression[i - 1] else ' '
-                    val nextChar = if (i < expression.length - 1) expression[i + 1] else ' '
-                    if (prevChar != '=' && nextChar != '=') {
-                        return Pair(char.toString(), i)
-                    }
-                }
-            }
-        }
-
-        return null
-    }
-
-    /**
-     * Evaluate a comparison expression
-     * Handles >, <, >=, <=, ==, != operations
-     */
-    private fun evaluateComparison(expression: String, operatorInfo: Pair<String, Int>): Boolean {
-        val (operator, position) = operatorInfo
-        val leftExpr = expression.substring(0, position).trim()
-        val rightExpr = expression.substring(position + operator.length).trim()
-
-        val leftValue = evaluateExpression(leftExpr)
-        val rightValue = evaluateExpression(rightExpr)
-
-        // Try numeric comparison first
-        val leftNum = toNumber(leftValue)
-        val rightNum = toNumber(rightValue)
-
-        if (leftNum != null && rightNum != null) {
-            val leftDouble = leftNum.toDouble()
-            val rightDouble = rightNum.toDouble()
-            return when (operator) {
-                ">" -> leftDouble > rightDouble
-                "<" -> leftDouble < rightDouble
-                ">=" -> leftDouble >= rightDouble
-                "<=" -> leftDouble <= rightDouble
-                "==" -> leftDouble == rightDouble
-                "!=" -> leftDouble != rightDouble
-                else -> false
-            }
-        }
-
-        // String/object comparison
-        return when (operator) {
-            "==" -> leftValue == rightValue || leftValue?.toString() == rightValue?.toString()
-            "!=" -> leftValue != rightValue && leftValue?.toString() != rightValue?.toString()
-            else -> false
-        }
-    }
-
-    /**
-     * Convert a value to a Number if possible
-     */
-    private fun toNumber(value: Any?): Number? {
-        return when (value) {
-            is Number -> value
-            is String -> value.toIntOrNull() ?: value.toDoubleOrNull()
-            else -> null
-        }
-    }
-
-    /**
-     * Create a JavaScript Date object wrapper
-     */
-    private fun createDateObject(expression: String): DateObject {
-        // For now, just create with current date/time
-        // Could parse arguments later if needed
-        return DateObject()
-    }
-
-    /** Evaluate array access like arr[0] or arr[i] */
-    private fun evaluateArrayAccess(expression: String): Any? {
+    /** Evaluate array access like arr[0] or arr[i] or arr[key].method().chain() */
+    private fun evaluateArrayAccessWithChain(expression: String): Any? {
         val varName = expression.substringBefore("[")
-        val indexExpr = expression.substringAfter("[").substringBeforeLast("]")
+
+        // Find the matching closing bracket for the first [
+        val openBracketIndex = expression.indexOf('[')
+        val closeBracketIndex = findMatchingBracket(expression, openBracketIndex)
+        if (closeBracketIndex == -1) return null
+
+        val indexExpr = expression.substring(openBracketIndex + 1, closeBracketIndex)
         val obj = scriptContext.getVariable(varName)
         val index = evaluateExpression(indexExpr)
 
-        return when (obj) {
+        var result: Any? = when (obj) {
             is List<*> -> {
                 val idx = (index as? Number)?.toInt() ?: return null
                 if (idx in obj.indices) obj[idx] else null
@@ -355,120 +195,23 @@ class ScriptEvaluator(
                 val idx = (index as? Number)?.toInt() ?: return null
                 if (idx in obj.indices) obj[idx].toString() else null
             }
+            is Map<*, *> -> {
+                // Map access: obj[key] where key is a string
+                val key = index?.toString() ?: return null
+                obj[key]
+            }
             else -> null
         }
-    }
 
-    /** Parse an array literal like [1, 2, 3] or ["a", "b", "c"] */
-    private fun parseArrayLiteral(expression: String): List<Any?> {
-        val content = expression.substring(1, expression.length - 1).trim()
-        if (content.isEmpty()) return emptyList()
-
-        val elements = mutableListOf<Any?>()
-        var current = StringBuilder()
-        var inQuotes = false
-        var quoteChar = ' '
-        var depth = 0
-
-        for (char in content) {
-            when {
-                (char == '"' || char == '\'') && depth == 0 -> {
-                    if (!inQuotes) {
-                        inQuotes = true
-                        quoteChar = char
-                    } else if (char == quoteChar) {
-                        inQuotes = false
-                    }
-                    current.append(char)
-                }
-                char == '[' && !inQuotes -> {
-                    depth++
-                    current.append(char)
-                }
-                char == ']' && !inQuotes -> {
-                    depth--
-                    current.append(char)
-                }
-                char == ',' && !inQuotes && depth == 0 -> {
-                    elements.add(evaluateExpression(current.toString().trim()))
-                    current = StringBuilder()
-                }
-                else -> {
-                    current.append(char)
-                }
-            }
-        }
-
-        // Don't forget the last element
-        if (current.isNotEmpty()) {
-            elements.add(evaluateExpression(current.toString().trim()))
-        }
-
-        return elements
-    }
-
-    /** Parse an object literal like { url: "http://...", method: "GET" } */
-    private fun parseObjectLiteral(expression: String): Map<String, Any?> {
-        val content = expression.substring(1, expression.length - 1).trim()
-        if (content.isEmpty()) return emptyMap()
-
-        val result = mutableMapOf<String, Any?>()
-        var current = StringBuilder()
-        var inQuotes = false
-        var quoteChar = ' '
-        var depth = 0
-
-        for (char in content) {
-            when {
-                (char == '"' || char == '\'') && depth == 0 -> {
-                    if (!inQuotes) {
-                        inQuotes = true
-                        quoteChar = char
-                    } else if (char == quoteChar) {
-                        inQuotes = false
-                    }
-                    current.append(char)
-                }
-                (char == '{' || char == '[') && !inQuotes -> {
-                    depth++
-                    current.append(char)
-                }
-                (char == '}' || char == ']') && !inQuotes -> {
-                    depth--
-                    current.append(char)
-                }
-                char == ',' && !inQuotes && depth == 0 -> {
-                    parseObjectProperty(current.toString().trim())?.let { (key, value) ->
-                        result[key] = value
-                    }
-                    current = StringBuilder()
-                }
-                else -> {
-                    current.append(char)
-                }
-            }
-        }
-
-        // Don't forget the last property
-        if (current.isNotEmpty()) {
-            parseObjectProperty(current.toString().trim())?.let { (key, value) ->
-                result[key] = value
+        // Check if there's more after the closing bracket (method chain or more array access)
+        if (closeBracketIndex < expression.length - 1) {
+            val remaining = expression.substring(closeBracketIndex + 1).trim()
+            if (remaining.isNotEmpty() && (remaining.startsWith(".") || remaining.startsWith("["))) {
+                result = evaluateChainedMethodCall(result, remaining)
             }
         }
 
         return result
-    }
-
-    /** Parse a single object property like "url: link" or "method: 'GET'" */
-    private fun parseObjectProperty(property: String): Pair<String, Any?>? {
-        val colonIndex = property.indexOf(':')
-        if (colonIndex == -1) return null
-
-        val key = property.substring(0, colonIndex).trim()
-        val valueExpr = property.substring(colonIndex + 1).trim()
-        val value = evaluateExpression(valueExpr)
-
-        return key to value
     }
 
     /** Evaluate property access on a variable like arr.length, str.length, or obj.key */
@@ -492,21 +235,6 @@ class ScriptEvaluator(
             is Map<*, *> -> obj[propName]
             else -> null
         }
-    }
-
-    /**
-     * Simple JavaScript Date object wrapper
-     */
-    class DateObject {
-        private val dateTime = java.time.LocalDateTime.now()
-
-        fun getHours(): Int = dateTime.hour
-        fun getMinutes(): Int = dateTime.minute
-        fun getSeconds(): Int = dateTime.second
-        fun getDate(): Int = dateTime.dayOfMonth
-        fun getMonth(): Int = dateTime.monthValue - 1 // JavaScript months are 0-indexed
-        fun getFullYear(): Int = dateTime.year
-        fun getDay(): Int = dateTime.dayOfWeek.value % 7 // JavaScript: 0=Sunday, 1=Monday, etc.
     }
 
     /**
@@ -562,12 +290,13 @@ class ScriptEvaluator(
 
         // For now, treat property access as a function call with no arguments
         // This allows tp.frontmatter.title to work like tp.frontmatter.title()
-        return executeFunctionCall(expr, emptyList())
+        return functionCallExecutor.executeFunctionCall(expr, emptyList())
     }
 
     /**
      * Evaluate function call
      * Example: tp.system.prompt("Enter name")
+     * Also handles chained calls: Object.keys(obj).forEach(fn)
      */
     private fun evaluateFunctionCall(expression: String): Any? {
         val expr = expression.trim()
@@ -580,128 +309,270 @@ class ScriptEvaluator(
         }
 
         // Extract function path and arguments
-        val functionPath = cleanExpr.substringBefore("(")
-        val argsString = cleanExpr.substringAfter("(").substringBeforeLast(")")
+        // Need to find the matching opening parenthesis for the function call
+        val firstParenIndex = cleanExpr.indexOf('(')
+        if (firstParenIndex == -1) return null
 
-        // Parse arguments
-        val args = parseArguments(argsString)
+        val functionPath = cleanExpr.substring(0, firstParenIndex)
 
-        // Execute the function
-        return executeFunctionCall(functionPath, args)
+        // Find the matching closing parenthesis and get the end index
+        val (argsString, endIndex) = extractMatchingParenContentWithIndex(cleanExpr, firstParenIndex)
+
+        // Parse arguments using the FunctionCallExecutor
+        val args = functionCallExecutor.parseArguments(argsString)
+
+        // Execute the function using the FunctionCallExecutor
+        var result = functionCallExecutor.executeFunctionCall(functionPath, args)
+
+        // Check if there's a chained method call or array access after the closing paren
+        // e.g., Object.keys(obj).forEach(fn) - after Object.keys(obj) there's .forEach(fn)
+        // e.g., str.split('#')[0] - after split('#') there's [0]
+        if (endIndex < cleanExpr.length - 1) {
+            val remaining = cleanExpr.substring(endIndex + 1).trim()
+            if (remaining.startsWith(".") || remaining.startsWith("[")) {
+                // There's a chained method call or array access
+                result = evaluateChainedMethodCall(result, remaining)
+            }
+        }
+
+        return result
     }
 
     /**
-     * Parse function arguments
+     * Evaluate a chained method call on a result.
+     * e.g., ".forEach(fn)" on a list result
+     * Also handles array index access like [0] after method calls
      */
-    private fun parseArguments(argsString: String): List<Any?> {
-        if (argsString.isBlank()) return emptyList()
+    private fun evaluateChainedMethodCall(obj: Any?, chainExpr: String): Any? {
+        if (obj == null) return null
 
-        val args = mutableListOf<Any?>()
-        var current = StringBuilder()
-        var inQuotes = false
-        var quoteChar = ' '
-        var depth = 0
+        // chainExpr starts with "." or "[" - e.g., ".forEach(fn)" or "[0]" or ".split('#')[0]"
+        var currentObj = obj
+        var remaining = chainExpr
 
-        for (char in argsString) {
-            when {
-                (char == '"' || char == '\'') && depth == 0 -> {
-                    if (!inQuotes) {
-                        inQuotes = true
-                        quoteChar = char
-                        current.append(char) // Keep the opening quote
-                    } else if (char == quoteChar) {
-                        inQuotes = false
-                        current.append(char) // Keep the closing quote
-                    } else {
-                        current.append(char) // Different quote inside string
+        while (remaining.isNotEmpty() && (remaining.startsWith(".") || remaining.startsWith("["))) {
+            if (remaining.startsWith("[")) {
+                // Array index access: [0] or [i]
+                val closeBracket = findMatchingBracket(remaining, 0)
+                if (closeBracket == -1) break
+
+                val indexExpr = remaining.substring(1, closeBracket)
+                val index = evaluateExpression(indexExpr)
+
+                currentObj = when (currentObj) {
+                    is List<*> -> {
+                        val idx = (index as? Number)?.toInt() ?: return null
+                        if (idx in currentObj.indices) currentObj[idx] else null
                     }
-                }
-                char == '(' && !inQuotes -> {
-                    depth++
-                    current.append(char)
-                }
-                char == ')' && !inQuotes -> {
-                    depth--
-                    current.append(char)
-                }
-                char == ',' && !inQuotes && depth == 0 -> {
-                    args.add(evaluateExpression(current.toString().trim()))
-                    current = StringBuilder()
-                }
-                else -> {
-                    current.append(char)
-                }
-            }
-        }
-
-        if (current.isNotEmpty()) {
-            args.add(evaluateExpression(current.toString().trim()))
-        }
-
-        return args
-    }
-
-    /**
-     * Execute a function call
-     * Delegates to ModuleRegistry or handles method calls on variables
-     */
-    private fun executeFunctionCall(functionPath: String, args: List<Any?>): Any? {
-        // Check if it's a simple function name (could be an arrow function variable)
-        if (!functionPath.contains(".")) {
-            val fn = scriptContext.getVariable(functionPath)
-            if (fn is ArrowFunction) {
-                return executeArrowFunction(fn, args)
-            }
-        }
-
-        // Check if it's a method call on a variable (e.g., hour.getHours(), str.split(","))
-        val parts = functionPath.split(".")
-        if (parts.size == 2) {
-            val varName = parts[0]
-            val methodName = parts[1]
-            val obj = scriptContext.getVariable(varName)
-
-            if (obj is DateObject) {
-                return when (methodName) {
-                    "getHours" -> obj.getHours()
-                    "getMinutes" -> obj.getMinutes()
-                    "getSeconds" -> obj.getSeconds()
-                    "getDate" -> obj.getDate()
-                    "getMonth" -> obj.getMonth()
-                    "getFullYear" -> obj.getFullYear()
-                    "getDay" -> obj.getDay()
+                    is String -> {
+                        val idx = (index as? Number)?.toInt() ?: return null
+                        if (idx in currentObj.indices) currentObj[idx].toString() else null
+                    }
+                    is Map<*, *> -> {
+                        val key = index?.toString() ?: return null
+                        currentObj[key]
+                    }
                     else -> null
                 }
-            }
 
-            // String methods
-            if (obj is String) {
-                return StringMethodExecutor.execute(obj, methodName, args)
-            }
+                remaining = if (closeBracket < remaining.length - 1) {
+                    remaining.substring(closeBracket + 1).trim()
+                } else {
+                    ""
+                }
+            } else {
+                // Method call: .method(args)
+                // Remove the leading dot
+                remaining = remaining.substring(1)
 
-            // Array methods
-            if (obj is List<*>) {
-                return ArrayMethodExecutor.execute(obj, methodName, args) { fn, fnArgs ->
-                    executeArrowFunction(fn, fnArgs)
+                // Find the method name and arguments
+                val parenIndex = remaining.indexOf('(')
+                if (parenIndex == -1) {
+                    // Property access, not a method call
+                    val methodName = remaining.takeWhile { it.isLetterOrDigit() || it == '_' }
+                    return when (currentObj) {
+                        is List<*> -> when (methodName) {
+                            "length" -> currentObj.size
+                            else -> null
+                        }
+                        is String -> when (methodName) {
+                            "length" -> currentObj.length
+                            else -> null
+                        }
+                        is Map<*, *> -> currentObj[methodName]
+                        else -> null
+                    }
+                }
+
+                val methodName = remaining.substring(0, parenIndex)
+                val (argsString, endIndex) = extractMatchingParenContentWithIndex(remaining, parenIndex)
+                val args = functionCallExecutor.parseArguments(argsString)
+
+                // Execute the method on the current object
+                currentObj = when (currentObj) {
+                    is List<*> -> {
+                        ronsijm.templater.script.methods.ArrayMethodExecutor.execute(currentObj, methodName, args) { fn, fnArgs ->
+                            executeArrowFunction(fn, fnArgs)
+                        }
+                    }
+                    is String -> {
+                        ronsijm.templater.script.methods.StringMethodExecutor.execute(currentObj, methodName, args)
+                    }
+                    else -> null
+                }
+
+                // Update remaining to check for more chained calls
+                remaining = if (endIndex < remaining.length - 1) {
+                    remaining.substring(endIndex + 1).trim()
+                } else {
+                    ""
                 }
             }
         }
 
-        // Delegate to ModuleRegistry
-        return moduleRegistry.executeFunction(functionPath, args)
+        return currentObj
     }
 
-    /** Check if expression is a top-level arrow function (=> not inside parentheses) */
-    private fun isTopLevelArrowFunction(expression: String): Boolean {
-        if (!expression.contains("=>")) return false
+    /** Find the matching closing bracket for an opening bracket at the given index */
+    private fun findMatchingBracket(str: String, openIndex: Int): Int {
+        var depth = 0
+        var inQuotes = false
+        var quoteChar = ' '
+
+        for (i in openIndex until str.length) {
+            val char = str[i]
+            when {
+                (char == '"' || char == '\'' || char == '`') && !inQuotes -> {
+                    inQuotes = true
+                    quoteChar = char
+                }
+                char == quoteChar && inQuotes -> {
+                    inQuotes = false
+                }
+                char == '[' && !inQuotes -> depth++
+                char == ']' && !inQuotes -> {
+                    depth--
+                    if (depth == 0) return i
+                }
+            }
+        }
+        return -1
+    }
+
+    /**
+     * Extract content between matching parentheses starting at the given index.
+     * Returns a pair of (content, endIndex) where endIndex is the position of the closing paren.
+     * Handles nested parentheses correctly.
+     */
+    private fun extractMatchingParenContentWithIndex(str: String, openParenIndex: Int): Pair<String, Int> {
+        var depth = 0
+        var inQuotes = false
+        var quoteChar = ' '
+
+        for (i in openParenIndex until str.length) {
+            val char = str[i]
+            when {
+                (char == '"' || char == '\'' || char == '`') && !inQuotes -> {
+                    inQuotes = true
+                    quoteChar = char
+                }
+                char == quoteChar && inQuotes -> {
+                    inQuotes = false
+                }
+                char == '(' && !inQuotes -> depth++
+                char == ')' && !inQuotes -> {
+                    depth--
+                    if (depth == 0) {
+                        // Found the matching closing paren
+                        return Pair(str.substring(openParenIndex + 1, i), i)
+                    }
+                }
+            }
+        }
+        // Fallback: return everything after the opening paren
+        return Pair(str.substring(openParenIndex + 1).trimEnd(')'), str.length - 1)
+    }
+
+    /** Execute an arrow function with given arguments */
+    fun executeArrowFunction(fn: ArrowFunction, args: List<Any?>): Any? {
+        return arrowFunctionHandler.executeArrowFunction(fn, args)
+    }
+
+    /**
+     * Find a top-level logical operator (&& or ||) in the expression.
+     * Returns a Pair of (index, operator) or null if not found.
+     * Top-level means not inside parentheses, brackets, quotes, or arrow function bodies.
+     */
+    private fun findTopLevelLogicalOperator(expr: String): Pair<Int, String>? {
+        // First, find the position of any top-level => (arrow function)
+        // Anything after => is inside the arrow body and should not be considered
+        val arrowIndex = findTopLevelArrowIndex(expr)
+
+        // Only search for logical operators BEFORE the arrow (if any)
+        val searchEnd = arrowIndex ?: expr.length
 
         var parenDepth = 0
         var bracketDepth = 0
+        var braceDepth = 0
         var inQuotes = false
         var quoteChar = ' '
 
-        for (i in 0 until expression.length - 1) {
-            val char = expression[i]
+        // Search from right to left (but only up to the arrow)
+        // Start at searchEnd - 1 to include the last character before searchEnd
+        var i = searchEnd - 1
+        while (i >= 0) {
+            val char = expr[i]
+            val nextChar = if (i < expr.length - 1) expr[i + 1] else ' '
+
+            when {
+                (char == '"' || char == '\'' || char == '`') && !inQuotes -> {
+                    inQuotes = true
+                    quoteChar = char
+                }
+                char == quoteChar && inQuotes -> {
+                    inQuotes = false
+                }
+                char == ')' && !inQuotes -> parenDepth++
+                char == '(' && !inQuotes -> {
+                    parenDepth--
+                    if (parenDepth < 0) parenDepth = 0
+                }
+                char == ']' && !inQuotes -> bracketDepth++
+                char == '[' && !inQuotes -> bracketDepth--
+                char == '}' && !inQuotes -> braceDepth++
+                char == '{' && !inQuotes -> braceDepth--
+                !inQuotes && parenDepth == 0 && bracketDepth == 0 && braceDepth == 0 -> {
+                    // Check for || first (lower precedence)
+                    if (char == '|' && nextChar == '|') {
+                        return Pair(i, "||")
+                    }
+                    // Then check for &&
+                    if (char == '&' && nextChar == '&') {
+                        return Pair(i, "&&")
+                    }
+                }
+            }
+            i--
+        }
+        return null
+    }
+
+    /**
+     * Find the index of a top-level => (arrow function) in the expression.
+     * Returns null if no top-level arrow is found.
+     */
+    private fun findTopLevelArrowIndex(expr: String): Int? {
+        var parenDepth = 0
+        var bracketDepth = 0
+        var braceDepth = 0
+        var inQuotes = false
+        var quoteChar = ' '
+
+        var i = 0
+        while (i < expr.length - 1) {
+            val char = expr[i]
+            val nextChar = expr[i + 1]
+
             when {
                 (char == '"' || char == '\'' || char == '`') && !inQuotes -> {
                     inQuotes = true
@@ -714,85 +585,60 @@ class ScriptEvaluator(
                 char == ')' && !inQuotes -> parenDepth--
                 char == '[' && !inQuotes -> bracketDepth++
                 char == ']' && !inQuotes -> bracketDepth--
-                char == '=' && expression[i + 1] == '>' && !inQuotes && parenDepth == 0 && bracketDepth == 0 -> {
-                    return true
+                char == '{' && !inQuotes -> braceDepth++
+                char == '}' && !inQuotes -> braceDepth--
+                char == '=' && nextChar == '>' && !inQuotes && parenDepth == 0 && bracketDepth == 0 && braceDepth == 0 -> {
+                    return i
                 }
             }
+            i++
         }
-        return false
+        return null
     }
 
-    /** Parse an arrow function expression: (x) => x + 1 or x => x + 1 */
-    private fun parseArrowFunction(expression: String): ArrowFunction? {
-        val arrowIndex = expression.indexOf("=>")
-        if (arrowIndex == -1) return null
+    /**
+     * Evaluate a logical expression (&&, ||).
+     */
+    private fun evaluateLogicalExpression(expr: String, opInfo: Pair<Int, String>): Any? {
+        val (index, op) = opInfo
+        val left = expr.substring(0, index).trim()
+        val right = expr.substring(index + 2).trim()
 
-        val paramsPart = expression.substring(0, arrowIndex).trim()
-        val bodyPart = expression.substring(arrowIndex + 2).trim()
+        val leftValue = evaluateExpression(left)
 
-        // Parse parameters
-        val parameters = if (paramsPart.startsWith("(") && paramsPart.endsWith(")")) {
-            // (x, y) => ...
-            paramsPart.substring(1, paramsPart.length - 1)
-                .split(",")
-                .map { it.trim() }
-                .filter { it.isNotEmpty() }
-        } else {
-            // x => ...
-            listOf(paramsPart)
+        return when (op) {
+            "&&" -> {
+                // Short-circuit: if left is falsy, return left; otherwise return right
+                if (isTruthy(leftValue)) {
+                    evaluateExpression(right)
+                } else {
+                    leftValue
+                }
+            }
+            "||" -> {
+                // Short-circuit: if left is truthy, return left; otherwise return right
+                if (isTruthy(leftValue)) {
+                    leftValue
+                } else {
+                    evaluateExpression(right)
+                }
+            }
+            else -> null
         }
-
-        // Check if body is a block or expression
-        val isExpression = !bodyPart.startsWith("{")
-        val body = if (isExpression) {
-            bodyPart
-        } else {
-            // Extract body from block, handle return statement
-            bodyPart.removeSurrounding("{", "}").trim()
-        }
-
-        return ArrowFunction(parameters, body, isExpression)
     }
 
-    /** Execute an arrow function with given arguments */
-    fun executeArrowFunction(fn: ArrowFunction, args: List<Any?>): Any? {
-        LOG?.debug("executeArrowFunction: fn=$fn, args=$args")
-
-        // Save current variable values for parameters (to restore later)
-        val savedValues = fn.parameters.map { it to scriptContext.getVariable(it) }
-
-        // Bind arguments to parameters
-        fn.parameters.forEachIndexed { index, param ->
-            val argValue = args.getOrNull(index)
-            LOG?.debug("  Setting param '$param' = $argValue (type: ${argValue?.javaClass})")
-            scriptContext.setVariable(param, argValue)
+    /**
+     * Check if a value is truthy (JavaScript-like semantics).
+     */
+    private fun isTruthy(value: Any?): Boolean {
+        return when (value) {
+            null -> false
+            is Boolean -> value
+            is Number -> value.toDouble() != 0.0
+            is String -> value.isNotEmpty()
+            is List<*> -> true // Arrays are always truthy in JS
+            is Map<*, *> -> true // Objects are always truthy in JS
+            else -> true
         }
-
-        LOG?.debug("  Evaluating body: '${fn.body}' (isExpression=${fn.isExpression})")
-        val result = if (fn.isExpression) {
-            // Expression body: evaluate directly
-            val r = evaluateExpression(fn.body)
-            LOG?.debug("  Expression result: $r (type: ${r?.javaClass})")
-            r
-        } else {
-            // Block body: look for return statement
-            val returnMatch = Regex("return\\s+(.+)").find(fn.body)
-            if (returnMatch != null) {
-                evaluateExpression(returnMatch.groupValues[1].trim())
-            } else {
-                evaluateExpression(fn.body)
-            }
-        }
-
-        // Restore previous variable values
-        savedValues.forEach { (param, value) ->
-            if (value != null) {
-                scriptContext.setVariable(param, value)
-            } else {
-                scriptContext.removeVariable(param)
-            }
-        }
-
-        return result
     }
 }

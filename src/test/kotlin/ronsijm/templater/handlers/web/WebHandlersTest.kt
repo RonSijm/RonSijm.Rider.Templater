@@ -1,4 +1,4 @@
-package ronsijm.templater.modules
+﻿package ronsijm.templater.handlers.web
 
 import ronsijm.templater.TestContextFactory
 import ronsijm.templater.handlers.generated.HandlerRegistry
@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
 /**
- * Tests for web module commands using HandlerRegistry
+ * Tests for web handlers using HandlerRegistry
  */
-class WebModuleTest {
+class WebHandlersTest {
 
-    private fun executeWeb(command: String, args: List<Any?> = emptyList(), context: TemplateContext): String? {
-        return HandlerRegistry.executeCommand("web", command, args, context)
+    private fun executeWeb(command: String, args: List<Any?> = emptyList(), context: TemplateContext): String {
+        return HandlerRegistry.executeCommand("web", command, args, context).toString()
     }
 
     @Test
@@ -23,8 +23,7 @@ class WebModuleTest {
 
         val result = executeWeb("daily_quote", context = context)
 
-        assertNotNull(result)
-        assertTrue(result!!.contains("> [!quote] Daily Quote"))
+        assertTrue(result.contains("> [!quote] Daily Quote"))
     }
 
     @Test
@@ -34,8 +33,7 @@ class WebModuleTest {
 
         val result = executeWeb("random_picture", context = context)
 
-        assertNotNull(result)
-        assertTrue(result!!.startsWith("!["))
+        assertTrue(result.startsWith("!["))
         assertTrue(result.contains("source.unsplash.com"))
     }
 
@@ -46,8 +44,7 @@ class WebModuleTest {
 
         val result = executeWeb("random_picture", listOf("200x200"), context)
 
-        assertNotNull(result)
-        assertTrue(result!!.contains("200x200"))
+        assertTrue(result.contains("200x200"))
     }
 
     @Test
@@ -57,8 +54,7 @@ class WebModuleTest {
 
         val result = executeWeb("random_picture", listOf("200x200", "landscape,water"), context)
 
-        assertNotNull(result)
-        assertTrue(result!!.contains("landscape,water"))
+        assertTrue(result.contains("landscape,water"))
     }
 
     @Test
@@ -68,8 +64,7 @@ class WebModuleTest {
 
         val result = executeWeb("random_picture", listOf("200x200", "", "true"), context)
 
-        assertNotNull(result)
-        assertTrue(result!!.contains("|200x200"))
+        assertTrue(result.contains("|200x200"))
     }
 
     @Test
@@ -79,8 +74,7 @@ class WebModuleTest {
         // Using a reliable test API
         val result = executeWeb("request", listOf("https://jsonplaceholder.typicode.com/todos/1"), context)
 
-        assertNotNull(result)
-        assertTrue(result!!.isNotEmpty())
+        assertTrue(result.isNotEmpty())
     }
 
     @Test
@@ -90,8 +84,7 @@ class WebModuleTest {
         // Using a reliable test API with JSON path
         val result = executeWeb("request", listOf("https://jsonplaceholder.typicode.com/todos/1", "title"), context)
 
-        assertNotNull(result)
-        assertTrue(result!!.isNotEmpty())
+        assertTrue(result.isNotEmpty())
     }
 
     @Test
@@ -101,8 +94,7 @@ class WebModuleTest {
         // Using a reliable test API with array path
         val result = executeWeb("request", listOf("https://jsonplaceholder.typicode.com/todos", "0.title"), context)
 
-        assertNotNull(result)
-        assertTrue(result!!.isNotEmpty())
+        assertTrue(result.isNotEmpty())
     }
 
     @Test
@@ -111,17 +103,17 @@ class WebModuleTest {
 
         val result = executeWeb("request", emptyList(), context)
 
-        assertNotNull(result)
-        assertTrue(result!!.contains("HTTP request failed"))
+        assertTrue(result.contains("HTTP request failed"))
     }
 
     @Test
-    fun `test unknown command returns null`() {
+    fun `test unknown command returns error`() {
         val context = TestContextFactory.create()
 
         val result = executeWeb("unknown", context = context)
 
-        assertNull(result)
+        // Unknown commands return ErrorResult with descriptive message
+        assertTrue(result.contains("Unknown function"))
     }
 }
 

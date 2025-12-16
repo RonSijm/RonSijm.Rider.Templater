@@ -19,12 +19,19 @@
  * @param module The module category (e.g., "date", "file", "system", "web")
  * @param description Brief description of what the handler does
  * @param example Example usage (e.g., "now(\"YYYY-MM-DD\", \"+7d\")")
+ * @param pure Whether this handler is pure (no side effects, can be parallelized).
+ *             Pure handlers only read data and don't modify state.
+ * @param barrier Whether this handler is a barrier (has side effects, requires sequential execution).
+ *                Barrier handlers modify state (files, clipboard) and must run sequentially.
+ *                Note: cancellable is auto-detected from CancellableHandler interface.
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
 annotation class RegisterHandler(
     val module: String,
     val description: String = "",
-    val example: String = ""
+    val example: String = "",
+    val pure: Boolean = false,
+    val barrier: Boolean = false
 )
 

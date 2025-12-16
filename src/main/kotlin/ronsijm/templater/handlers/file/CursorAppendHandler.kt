@@ -7,7 +7,8 @@ import ronsijm.templater.parser.TemplateContext
 @RegisterHandler(
     module = "file",
     description = "Appends content at cursor position",
-    example = "cursor_append('text to append')"
+    example = "cursor_append('text to append')",
+    barrier = true
 )
 class CursorAppendHandler : CommandHandler<CursorAppendRequest, String> {
     override fun handle(request: CursorAppendRequest, context: TemplateContext): String {

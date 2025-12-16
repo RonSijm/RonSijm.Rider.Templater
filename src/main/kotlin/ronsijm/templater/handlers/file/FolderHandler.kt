@@ -7,7 +7,8 @@ import ronsijm.templater.parser.TemplateContext
 @RegisterHandler(
     module = "file",
     description = "Returns the folder name or path",
-    example = "folder(true)"
+    example = "folder(true)",
+    pure = true
 )
 class FolderHandler : CommandHandler<FolderRequest, String> {
     override fun handle(request: FolderRequest, context: TemplateContext): String {

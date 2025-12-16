@@ -7,7 +7,8 @@ import ronsijm.templater.parser.TemplateContext
 @RegisterHandler(
     module = "file",
     description = "Returns the file tags",
-    example = "tags()"
+    example = "tags()",
+    pure = true
 )
 class TagsHandler : CommandHandler<TagsRequest, String> {
     override fun handle(request: TagsRequest, context: TemplateContext): String {

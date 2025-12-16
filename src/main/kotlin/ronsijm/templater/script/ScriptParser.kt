@@ -3,8 +3,6 @@
 /** Parses for loops and if/else statements from script blocks */
 class ScriptParser {
 
-    data class Quadruple<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
-
     /** Returns (loopHeader, loopBody, nextStatementIndex) or null */
     fun extractForLoop(statements: List<String>, startIndex: Int): Triple<String, List<String>, Int>? {
         val loopHeader = statements[startIndex]

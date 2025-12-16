@@ -6,12 +6,12 @@ data class HandlerMetadata(
     val name: String,
     val description: String,
     val example: String,
-    val parameters: String = ""
+    val parameters: String = "",
+    /** Whether this handler can be cancelled by the user (e.g., dialogs) */
+    val cancellable: Boolean = false,
+    /** Whether this handler is pure (no side effects, can be parallelized) */
+    val pure: Boolean = false,
+    /** Whether this handler is a barrier (has side effects, requires sequential execution) */
+    val barrier: Boolean = false
 )
-
-interface HandlerMetadataProvider {
-    val metadata: HandlerMetadata
-}
-
-
 

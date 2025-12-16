@@ -14,7 +14,8 @@ import java.time.ZoneId
 @RegisterHandler(
     module = "file",
     description = "Returns the file creation date",
-    example = "creation_date(\"YYYY-MM-DD HH:mm\", \"path/to/file.md\")"
+    example = "creation_date(\"YYYY-MM-DD HH:mm\", \"path/to/file.md\")",
+    pure = true
 )
 class CreationDateHandler : CommandHandler<CreationDateRequest, String> {
     override fun handle(request: CreationDateRequest, context: TemplateContext): String {

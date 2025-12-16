@@ -11,7 +11,8 @@ import java.time.ZoneId
 @RegisterHandler(
     module = "file",
     description = "Returns the file last modified date",
-    example = "last_modified_date(\"YYYY-MM-DD HH:mm\", \"path/to/file.md\")"
+    example = "last_modified_date(\"YYYY-MM-DD HH:mm\", \"path/to/file.md\")",
+    pure = true
 )
 class LastModifiedDateHandler : CommandHandler<LastModifiedDateRequest, String> {
     override fun handle(request: LastModifiedDateRequest, context: TemplateContext): String {

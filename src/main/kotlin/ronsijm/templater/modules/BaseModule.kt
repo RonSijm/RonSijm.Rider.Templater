@@ -2,6 +2,8 @@
 
 import ronsijm.templater.handlers.Command
 import ronsijm.templater.handlers.CommandMetadata
+import ronsijm.templater.handlers.CommandResult
+import ronsijm.templater.handlers.OkResult
 import ronsijm.templater.parser.TemplateContext
 import ronsijm.templater.parser.FrontmatterParser
 
@@ -46,10 +48,11 @@ abstract class BaseModule(protected val context: TemplateContext? = null) {
      * Execute a command by name
      * @param function The function name (from metadata)
      * @param args The function arguments
-     * @return The result or null
+     * @return The [CommandResult] from the command execution
      */
-    fun executeCommand(function: String, args: List<Any?>): String? {
+    fun executeCommand(function: String, args: List<Any?>): CommandResult {
         return commandRegistry[function]?.execute(args, context ?: EMPTY_CONTEXT)
+            ?: OkResult
     }
 
     /**

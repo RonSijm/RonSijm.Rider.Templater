@@ -1,4 +1,4 @@
-package ronsijm.templater.modules
+﻿package ronsijm.templater.handlers.file
 
 import ronsijm.templater.TestContextFactory
 import ronsijm.templater.handlers.generated.HandlerRegistry
@@ -7,12 +7,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
 /**
- * Tests for file module commands using HandlerRegistry
+ * Tests for file handlers using HandlerRegistry
  */
-class FileModuleTest {
+class FileHandlersTest {
 
-    private fun executeFile(command: String, args: List<Any?> = emptyList(), context: TemplateContext = TestContextFactory.create()): String? {
-        return HandlerRegistry.executeCommand("file", command, args, context)
+    private fun executeFile(command: String, args: List<Any?> = emptyList(), context: TemplateContext = TestContextFactory.create()): String {
+        return HandlerRegistry.executeCommand("file", command, args, context).toString()
     }
 
     @Test
@@ -86,8 +86,7 @@ class FileModuleTest {
         val context = TestContextFactory.create(fileContent = "# Document\n\nNo tags here.")
         val result = executeFile("tags", context = context)
 
-        assertNotNull(result)
-        assertTrue(result!!.isEmpty() || result == "[]")
+        assertTrue(result.isEmpty() || result == "[]")
     }
 
     @Test
@@ -95,9 +94,8 @@ class FileModuleTest {
         val context = TestContextFactory.create(fileContent = "# Document\n\n#tag1 #tag2 #tag3")
         val result = executeFile("tags", context = context)
 
-        assertNotNull(result)
         // Should contain the tags
-        assertTrue(result!!.contains("tag1") || result.contains("#tag1"))
+        assertTrue(result.contains("tag1") || result.contains("#tag1"))
     }
 
     @Test
@@ -105,7 +103,6 @@ class FileModuleTest {
         val context = TestContextFactory.create()
         val result = executeFile("selection", context = context)
 
-        assertNotNull(result)
         assertEquals("", result)
     }
 

@@ -7,7 +7,8 @@ import ronsijm.templater.parser.TemplateContext
 @RegisterHandler(
     module = "file",
     description = "Checks if a file exists",
-    example = "exists('path/to/file.md')"
+    example = "exists('path/to/file.md')",
+    pure = true
 )
 class ExistsHandler : CommandHandler<ExistsRequest, String> {
     override fun handle(request: ExistsRequest, context: TemplateContext): String {

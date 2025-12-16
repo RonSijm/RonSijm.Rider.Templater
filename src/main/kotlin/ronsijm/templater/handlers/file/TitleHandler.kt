@@ -7,7 +7,8 @@ import ronsijm.templater.parser.TemplateContext
 @RegisterHandler(
     module = "file",
     description = "Returns the file title (name without extension)",
-    example = "title()"
+    example = "title()",
+    pure = true
 )
 class TitleHandler : CommandHandler<TitleRequest, String> {
     override fun handle(request: TitleRequest, context: TemplateContext): String {

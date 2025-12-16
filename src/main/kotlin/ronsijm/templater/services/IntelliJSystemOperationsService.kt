@@ -10,7 +10,7 @@ import com.intellij.openapi.ui.Messages
 class IntelliJSystemOperationsService(
     private val project: Project
 ) : SystemOperationsService {
-    
+
     override fun prompt(
         promptText: String,
         defaultValue: String?,
@@ -27,7 +27,11 @@ class IntelliJSystemOperationsService(
         )
         return result
     }
-    
+
+    // Note: Messages.showChooseDialog is deprecated but the recommended replacement
+    // (JBPopupFactory.createPopupChooserBuilder) is non-blocking and causes EDT deadlocks
+    // when used synchronously. Until a proper modal replacement is available, we use the
+    // deprecated but working API.
     @Suppress("DEPRECATION")
     override fun suggester(
         textItems: List<*>,
@@ -45,7 +49,7 @@ class IntelliJSystemOperationsService(
             labelStrings,
             labelStrings.firstOrNull()
         )
-        
+
         return if (selectedIndex >= 0 && selectedIndex < values.size) {
             values[selectedIndex]
         } else {
@@ -55,7 +59,7 @@ class IntelliJSystemOperationsService(
             null
         }
     }
-    
+
     @Suppress("DEPRECATION")
     override fun multiSuggester(
         textItems: List<*>,
@@ -73,21 +77,21 @@ class IntelliJSystemOperationsService(
         while (shouldContinue) {
             val selectedIndex = Messages.showChooseDialog(
                 project,
-                if (placeholder.isNotEmpty()) "$placeholder (Select items, cancel when done)" 
+                if (placeholder.isNotEmpty()) "$placeholder (Select items, cancel when done)"
                 else "Select items (cancel when done):",
                 "Templater Multi-Suggester",
                 Messages.getQuestionIcon(),
                 labelStrings,
                 labelStrings.firstOrNull()
             )
-            
+
             if (selectedIndex >= 0 && selectedIndex < values.size) {
                 selected.add(values[selectedIndex])
             } else {
                 shouldContinue = false
             }
         }
-        
+
         return if (selected.isEmpty() && throwOnCancel) {
             throw IllegalStateException("Multi-suggester was cancelled")
         } else {

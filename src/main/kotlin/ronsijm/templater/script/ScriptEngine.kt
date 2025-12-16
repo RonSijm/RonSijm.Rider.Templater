@@ -25,6 +25,11 @@ class ScriptEngine(templateContext: TemplateContext) {
     private val parser = ScriptParser()
     private val executor = ScriptExecutor(scriptContext, evaluator, parser)
 
+    init {
+        // Wire up the statement executor for multi-statement arrow function bodies
+        evaluator.setStatementExecutor { statement -> executor.executeStatement(statement) }
+    }
+
     /**
      * Initialize the tR variable with the current template output
      * This should be called before executing each template block
@@ -54,6 +59,12 @@ class ScriptEngine(templateContext: TemplateContext) {
 
         var i = 0
         while (i < statements.size) {
+            // Check if return was requested
+            if (scriptContext.isReturnRequested()) {
+                LOG?.debug("Return requested, stopping execution")
+                break
+            }
+
             val statement = statements[i]
             LOG?.debug("Processing statement $i: $statement")
 
@@ -120,6 +131,13 @@ class ScriptEngine(templateContext: TemplateContext) {
      */
     fun getVariable(name: String): Any? {
         return scriptContext.getVariable(name)
+    }
+
+    /**
+     * Check if return was requested during script execution
+     */
+    fun isReturnRequested(): Boolean {
+        return scriptContext.isReturnRequested()
     }
 
 }

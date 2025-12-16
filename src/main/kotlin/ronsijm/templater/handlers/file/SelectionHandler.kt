@@ -7,7 +7,8 @@ import ronsijm.templater.parser.TemplateContext
 @RegisterHandler(
     module = "file",
     description = "Returns the current file selection",
-    example = "selection()"
+    example = "selection()",
+    pure = true
 )
 class SelectionHandler : CommandHandler<SelectionRequest, String> {
     override fun handle(request: SelectionRequest, context: TemplateContext): String {

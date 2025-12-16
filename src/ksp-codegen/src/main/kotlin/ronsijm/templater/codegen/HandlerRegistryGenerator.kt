@@ -16,7 +16,10 @@ class HandlerRegistryGenerator(
         val commandName: String,
         val description: String,
         val example: String,
-        val parameters: List<ParameterInfo>
+        val parameters: List<ParameterInfo>,
+        val cancellable: Boolean,
+        val pure: Boolean,
+        val barrier: Boolean
     )
 
     private data class ParameterInfo(
@@ -54,6 +57,8 @@ class HandlerRegistryGenerator(
         val module = annotation.arguments.firstOrNull { it.name?.asString() == "module" }?.value as? String ?: return null
         val description = annotation.arguments.firstOrNull { it.name?.asString() == "description" }?.value as? String ?: ""
         val example = annotation.arguments.firstOrNull { it.name?.asString() == "example" }?.value as? String ?: ""
+        val pure = annotation.arguments.firstOrNull { it.name?.asString() == "pure" }?.value as? Boolean ?: false
+        val barrier = annotation.arguments.firstOrNull { it.name?.asString() == "barrier" }?.value as? Boolean ?: false
 
         val handlerName = classDecl.simpleName.asString()
         val baseName = handlerName.removeSuffix("Handler")
@@ -67,7 +72,13 @@ class HandlerRegistryGenerator(
 
         val parameters = requestClass?.let { extractParameters(it) } ?: emptyList()
 
-        return HandlerInfo(classDecl, module, commandName, description, example, parameters)
+        // Detect if handler implements CancellableHandler interface
+        val cancellable = classDecl.superTypes.any { superType ->
+            val declaration = superType.resolve().declaration
+            declaration.simpleName.asString() == "CancellableHandler"
+        }
+
+        return HandlerInfo(classDecl, module, commandName, description, example, parameters, cancellable, pure, barrier)
     }
 
     private fun extractParameters(requestClass: KSClassDeclaration): List<ParameterInfo> {
@@ -180,7 +191,10 @@ class HandlerRegistryGenerator(
             writer.appendLine("    name = \"${info.commandName}\",")
             writer.appendLine("    description = \"${escapeString(info.description)}\",")
             writer.appendLine("    example = \"${escapeString(example)}\",")
-            writer.appendLine("    parameters = \"${escapeString(parametersStr)}\"")
+            writer.appendLine("    parameters = \"${escapeString(parametersStr)}\",")
+            writer.appendLine("    cancellable = ${info.cancellable},")
+            writer.appendLine("    pure = ${info.pure},")
+            writer.appendLine("    barrier = ${info.barrier}")
             writer.appendLine(")")
             writer.appendLine()
         }
@@ -243,8 +257,12 @@ class HandlerRegistryGenerator(
         writer.appendLine()
 
         // Generate executeCommand function
-        writer.appendLine("    fun executeCommand(module: String, function: String, args: List<Any?>, context: ronsijm.templater.parser.TemplateContext): String? {")
-        writer.appendLine("        return commandsByModule[module]?.get(function)?.execute(args, context)")
+        writer.appendLine("    fun executeCommand(module: String, function: String, args: List<Any?>, context: ronsijm.templater.parser.TemplateContext): ronsijm.templater.handlers.CommandResult {")
+        writer.appendLine("        val moduleCommands = commandsByModule[module]")
+        writer.appendLine("            ?: return ronsijm.templater.handlers.ErrorResult(\"Unknown module: \$module\")")
+        writer.appendLine("        val command = moduleCommands[function]")
+        writer.appendLine("            ?: return ronsijm.templater.handlers.ErrorResult(\"Unknown function: \$module.\$function\")")
+        writer.appendLine("        return command.execute(args, context)")
         writer.appendLine("    }")
         writer.appendLine("}")
     }

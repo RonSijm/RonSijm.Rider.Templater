@@ -1,11 +1,16 @@
 ﻿package ronsijm.templater.services
 
+import ronsijm.templater.settings.CancelBehavior
+import ronsijm.templater.settings.SimpleTemplaterSettings
+import ronsijm.templater.settings.TemplaterSettingsData
+
 /** Holds all service dependencies. Uses null-object defaults so callers don't need null checks. */
 data class ServiceContainer(
     val clipboardService: ClipboardService = SystemClipboardService(),
     val httpService: HttpService = DefaultHttpService(),
     val fileOperationService: FileOperationService = NullFileOperationService,
-    val systemOperationsService: SystemOperationsService = NullSystemOperationsService
+    val systemOperationsService: SystemOperationsService = NullSystemOperationsService,
+    val settings: TemplaterSettingsData = SimpleTemplaterSettings()
 ) {
     companion object {
         fun createDefault() = ServiceContainer()
@@ -14,23 +19,14 @@ data class ServiceContainer(
             clipboardService: ClipboardService? = null,
             httpService: HttpService? = null,
             fileOperationService: FileOperationService? = null,
-            systemOperationsService: SystemOperationsService? = null
+            systemOperationsService: SystemOperationsService? = null,
+            settings: TemplaterSettingsData? = null
         ) = ServiceContainer(
             clipboardService = clipboardService ?: MockClipboardService(),
             httpService = httpService ?: MockHttpService(),
             fileOperationService = fileOperationService ?: MockFileOperationsService(),
-            systemOperationsService = systemOperationsService ?: MockSystemOperationsService()
+            systemOperationsService = systemOperationsService ?: MockSystemOperationsService(),
+            settings = settings ?: SimpleTemplaterSettings()
         )
     }
 }
-
-class MockClipboardService(private var content: String = "") : ClipboardService {
-    override fun getClipboardText() = content
-    override fun setClipboardText(text: String) { content = text }
-}
-
-class MockHttpService(private val responses: MutableMap<String, String> = mutableMapOf()) : HttpService {
-    override fun send(request: java.net.http.HttpRequest) = responses[request.uri().toString()] ?: "{}"
-    fun addResponse(url: String, response: String) { responses[url] = response }
-}
-

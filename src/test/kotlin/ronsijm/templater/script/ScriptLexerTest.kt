@@ -90,9 +90,9 @@ class ScriptLexerTest {
     @Test
     fun `test smart split respects quotes`() {
         val script = "let message = \"Hello\nWorld\""
-        
+
         val statements = lexer.smartSplitStatements(script)
-        
+
         assertEquals(1, statements.size)
         assertTrue(statements[0].contains("Hello\nWorld"))
     }

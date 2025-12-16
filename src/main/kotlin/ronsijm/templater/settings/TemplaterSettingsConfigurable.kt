@@ -17,6 +17,8 @@ class TemplaterSettingsConfigurable : Configurable {
     private var syntaxValidationCheckbox: JCheckBox? = null
     private var showStatsCheckbox: JCheckBox? = null
     private var selectionOnlyCheckbox: JCheckBox? = null
+    private var popupBehaviorComboBox: JComboBox<String>? = null
+    private var cancelBehaviorComboBox: JComboBox<String>? = null
 
     override fun getDisplayName(): String = "Templater"
 
@@ -84,8 +86,38 @@ class TemplaterSettingsConfigurable : Configurable {
         }
         panel.add(selectionOnlyCheckbox, gbc)
 
-        // Spacer to push everything to the top
+        // Popup behavior label
         gbc.gridy = 7
+        gbc.insets = Insets(10, 20, 5, 5)
+        val popupLabel = JLabel("Show popup after execution:")
+        panel.add(popupLabel, gbc)
+
+        // Popup behavior combo box
+        gbc.gridy = 8
+        gbc.insets = Insets(0, 20, 5, 5)
+        val popupOptions = arrayOf("Always", "Only on error", "Never")
+        popupBehaviorComboBox = JComboBox(popupOptions).apply {
+            toolTipText = "Control when to show the popup notification after template execution"
+        }
+        panel.add(popupBehaviorComboBox, gbc)
+
+        // Cancel behavior label
+        gbc.gridy = 9
+        gbc.insets = Insets(10, 20, 5, 5)
+        val cancelLabel = JLabel("When dialog is cancelled:")
+        panel.add(cancelLabel, gbc)
+
+        // Cancel behavior combo box
+        gbc.gridy = 10
+        gbc.insets = Insets(0, 20, 5, 5)
+        val cancelOptions = arrayOf("Remove expression (replace with empty)", "Keep original expression")
+        cancelBehaviorComboBox = JComboBox(cancelOptions).apply {
+            toolTipText = "What to do when user cancels a prompt or suggester dialog"
+        }
+        panel.add(cancelBehaviorComboBox, gbc)
+
+        // Spacer to push everything to the top
+        gbc.gridy = 11
         gbc.weighty = 1.0
         gbc.fill = GridBagConstraints.BOTH
         panel.add(JPanel(), gbc)
@@ -100,7 +132,9 @@ class TemplaterSettingsConfigurable : Configurable {
         return parallelExecutionCheckbox?.isSelected != settings.enableParallelExecution ||
                syntaxValidationCheckbox?.isSelected != settings.enableSyntaxValidation ||
                showStatsCheckbox?.isSelected != settings.showExecutionStats ||
-               selectionOnlyCheckbox?.isSelected != settings.enableSelectionOnlyExecution
+               selectionOnlyCheckbox?.isSelected != settings.enableSelectionOnlyExecution ||
+               getSelectedPopupBehavior() != settings.popupBehavior ||
+               getSelectedCancelBehavior() != settings.cancelBehavior
     }
 
     override fun apply() {
@@ -109,6 +143,8 @@ class TemplaterSettingsConfigurable : Configurable {
         settings.enableSyntaxValidation = syntaxValidationCheckbox?.isSelected ?: true
         settings.showExecutionStats = showStatsCheckbox?.isSelected ?: false
         settings.enableSelectionOnlyExecution = selectionOnlyCheckbox?.isSelected ?: true
+        settings.popupBehavior = getSelectedPopupBehavior()
+        settings.cancelBehavior = getSelectedCancelBehavior()
     }
 
     override fun reset() {
@@ -117,6 +153,25 @@ class TemplaterSettingsConfigurable : Configurable {
         syntaxValidationCheckbox?.isSelected = settings.enableSyntaxValidation
         showStatsCheckbox?.isSelected = settings.showExecutionStats
         selectionOnlyCheckbox?.isSelected = settings.enableSelectionOnlyExecution
+        popupBehaviorComboBox?.selectedIndex = settings.popupBehavior.ordinal
+        cancelBehaviorComboBox?.selectedIndex = settings.cancelBehavior.ordinal
+    }
+
+    private fun getSelectedPopupBehavior(): PopupBehavior {
+        return when (popupBehaviorComboBox?.selectedIndex) {
+            0 -> PopupBehavior.ALWAYS
+            1 -> PopupBehavior.ONLY_ON_ERROR
+            2 -> PopupBehavior.NEVER
+            else -> PopupBehavior.ALWAYS
+        }
+    }
+
+    private fun getSelectedCancelBehavior(): CancelBehavior {
+        return when (cancelBehaviorComboBox?.selectedIndex) {
+            0 -> CancelBehavior.REMOVE_EXPRESSION
+            1 -> CancelBehavior.KEEP_EXPRESSION
+            else -> CancelBehavior.REMOVE_EXPRESSION
+        }
     }
 
     override fun disposeUIResources() {
@@ -125,6 +180,8 @@ class TemplaterSettingsConfigurable : Configurable {
         syntaxValidationCheckbox = null
         showStatsCheckbox = null
         selectionOnlyCheckbox = null
+        popupBehaviorComboBox = null
+        cancelBehaviorComboBox = null
     }
 }
 

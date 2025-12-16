@@ -220,6 +220,51 @@ flowchart TB
 - Level 1: A and B execute concurrently via `async`/`awaitAll`
 - Level 2: C executes after A completes
 
+### Handler Execution Categories
+
+Handlers are classified into three categories that determine how they can be executed:
+
+| Category | `pure` | `barrier` | `cancellable` | Description |
+|----------|--------|-----------|---------------|-------------|
+| **Pure** | ✅ | ❌ | ❌ | No side effects, can be parallelized freely |
+| **Barrier** | ❌ | ✅ | ❌ | Has side effects, requires sequential execution |
+| **Cancellable** | ❌ | ❌ | ✅ | Requires user interaction, forces sequential execution |
+| **Default** | ❌ | ❌ | ❌ | May have side effects but doesn't block parallelism |
+
+**Pure Functions** (`pure = true`)
+- Only read data, never modify state
+- Can be safely executed in parallel with other pure functions
+- Examples: `tp.date.now()`, `tp.file.title()`, `tp.file.content()`, `tp.frontmatter.*`
+
+**Barrier Functions** (`barrier = true`)
+- Modify state (files, clipboard, cursor position)
+- Must execute sequentially to ensure correct ordering
+- Examples: `tp.file.create_new()`, `tp.file.move()`, `tp.file.rename()`, `tp.system.clipboard()`, `tp.file.cursor()`
+
+**Cancellable Functions** (implements `CancellableHandler`)
+- Show dialogs or prompts that require user interaction
+- User can cancel the operation (e.g., close dialog)
+- Always treated as barriers (sequential execution)
+- Examples: `tp.system.prompt()`, `tp.system.suggester()`
+
+**Default Functions** (none of the above)
+- May have minor side effects but don't require strict ordering
+- Can potentially be parallelized with caution
+
+These properties are set via the `@RegisterHandler` annotation:
+```kotlin
+@RegisterHandler(
+    module = "file",
+    description = "Creates a new file",
+    example = "create_new('content', 'file.md')",
+    pure = false,    // default
+    barrier = true   // has side effects
+)
+class CreateNewHandler : CommandHandler<CreateNewRequest, String> { ... }
+```
+
+The `cancellable` property is auto-detected when a handler implements the `CancellableHandler` interface.
+
 ---
 
 ## Parser

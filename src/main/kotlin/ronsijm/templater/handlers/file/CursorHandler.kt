@@ -7,7 +7,8 @@ import ronsijm.templater.parser.TemplateContext
 @RegisterHandler(
     module = "file",
     description = "Sets the cursor position",
-    example = "cursor(0)"
+    example = "cursor(0)",
+    barrier = true
 )
 class CursorHandler : CommandHandler<CursorRequest, String> {
     override fun handle(request: CursorRequest, context: TemplateContext): String {

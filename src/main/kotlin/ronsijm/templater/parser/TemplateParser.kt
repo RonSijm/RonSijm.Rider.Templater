@@ -1,9 +1,13 @@
 package ronsijm.templater.parser
 
+import ronsijm.templater.handlers.CancelledResult
+import ronsijm.templater.handlers.CommandResult
+import ronsijm.templater.handlers.OkValueResult
 import ronsijm.templater.handlers.generated.HandlerRegistry
 import ronsijm.templater.modules.*
 import ronsijm.templater.script.ScriptEngine
 import ronsijm.templater.services.ServiceContainer
+import ronsijm.templater.settings.CancelBehavior
 import ronsijm.templater.utils.CommandExecutionHelper
 import ronsijm.templater.utils.ErrorMessages
 import ronsijm.templater.utils.Logging
@@ -68,6 +72,11 @@ class TemplateParser(
         var result = content
 
         templateRegex.findAll(content).forEach { match ->
+            // Check if return was requested - stop processing further blocks
+            if (scriptEngine?.isReturnRequested() == true) {
+                return@forEach
+            }
+
             val leftTrim = match.groupValues[1]
             val isExecution = match.groupValues[2] == "*"
             val command = match.groupValues[3].trim()
@@ -110,16 +119,44 @@ class TemplateParser(
                 if (command == "tR") {
                     scriptEngine?.getResultAccumulator() ?: ""
                 } else {
-                    // Check if it's a variable reference
+                    // Check if it's a simple variable reference
                     val varValue = scriptEngine?.getVariable(command)
                     if (varValue != null) {
                         varValue.toString()
-                    } else {
-                        // Execute as command
+                    } else if (command.startsWith("tp.") || command.startsWith("await tp.")) {
+                        // It's a tp.module.function() command - execute it
                         try {
-                            executeCommand(command, enhancedContext)
+                            val result = executeCommand(command, enhancedContext)
+                            // CancelledResult means user cancelled - check cancel behavior setting
+                            when (result) {
+                                is CancelledResult -> when (services.settings.cancelBehavior) {
+                                    CancelBehavior.KEEP_EXPRESSION -> matchText
+                                    CancelBehavior.REMOVE_EXPRESSION -> ""
+                                }
+                                else -> result.toString()
+                            }
                         } catch (e: Exception) {
                             ErrorMessages.scriptExecutionError(e.message)
+                        }
+                    } else {
+                        // Try to evaluate as an expression (e.g., variable.method() or arithmetic)
+                        try {
+                            val exprResult = scriptEngine?.evaluateExpression(command)
+                            exprResult?.toString() ?: ""
+                        } catch (e: Exception) {
+                            // If expression evaluation fails, try as a command (for backwards compatibility)
+                            try {
+                                val result = executeCommand(command, enhancedContext)
+                                when (result) {
+                                    is CancelledResult -> when (services.settings.cancelBehavior) {
+                                        CancelBehavior.KEEP_EXPRESSION -> matchText
+                                        CancelBehavior.REMOVE_EXPRESSION -> ""
+                                    }
+                                    else -> result.toString()
+                                }
+                            } catch (e2: Exception) {
+                                ErrorMessages.scriptExecutionError(e.message)
+                            }
                         }
                     }
                 }
@@ -180,8 +217,9 @@ class TemplateParser(
     /**
      * Execute a template command
      * Example: "tp.frontmatter.title" or "tp.date.now()"
+     * @return [CommandResult] representing the outcome of the command
      */
-    private fun executeCommand(command: String, context: TemplateContext): String {
+    private fun executeCommand(command: String, context: TemplateContext): CommandResult {
         // Remove 'await' keyword if present
         val withoutAwait = if (command.startsWith("await ")) {
             command.substring(6).trim()
@@ -216,20 +254,20 @@ class TemplateParser(
                     // Frontmatter needs the full path split
                     val parts = normalized.split(".")
                     val value = moduleFactory?.getFrontmatterModule()?.getValue(parts)
-                    return value?.toString() ?: ""
+                    return OkValueResult(value?.toString() ?: "")
                 }
-                "hooks" -> return "" // Hooks don't output anything
+                "hooks" -> return OkValueResult("") // Hooks don't output anything
                 "config" -> {
                     val property = rest.substringBefore("(").substringBefore(".")
-                    return moduleFactory?.getConfigModule()?.executeProperty(property) ?: ""
+                    return OkValueResult(moduleFactory?.getConfigModule()?.executeProperty(property) ?: "")
                 }
-                "app" -> return "" // App module is for script blocks
+                "app" -> return OkValueResult("") // App module is for script blocks
                 "obsidian" -> {
                     // Alias: tp.obsidian.request({url}) -> tp.web.request(url)
                     if (rest.startsWith("request")) {
-                        return executeObsidianRequest(rest, context)
+                        return OkValueResult(executeObsidianRequest(rest, context))
                     }
-                    return ""
+                    return OkValueResult("")
                 }
             }
 
@@ -288,6 +326,6 @@ class TemplateParser(
             trimmed.removeSurrounding("\"").removeSurrounding("'")
         }
 
-        return HandlerRegistry.executeCommand("web", "request", listOf(url), context) ?: ""
+        return HandlerRegistry.executeCommand("web", "request", listOf(url), context).toString()
     }
 }

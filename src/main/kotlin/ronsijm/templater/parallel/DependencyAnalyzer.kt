@@ -1,46 +1,43 @@
 ﻿package ronsijm.templater.parallel
 
+import ronsijm.templater.handlers.generated.HandlerRegistry
+
 /**
  * Analyzes template blocks to determine variable dependencies and barriers
  */
 class DependencyAnalyzer {
-    
+
     // Patterns for detecting variable operations
     private val letPattern = Regex("""(?:let|const|var)\s+(\w+)\s*=""")
     private val assignmentPattern = Regex("""^(\w+)\s*=""")
     private val variableRefPattern = Regex("""\b([a-zA-Z_]\w*)\b""")
-    
-    // Barrier functions - these require sequential execution
-    private val barrierFunctions = setOf(
-        "tp.system.prompt",
-        "tp.system.suggester",
-        "tp.system.clipboard",  // clipboard operations should be sequential
-        "tp.file.create_new",
-        "tp.file.move",
-        "tp.file.rename"
-    )
-    
-    // Pure functions - these have no side effects and can be parallelized
-    private val pureFunctions = setOf(
-        "tp.date.now",
-        "tp.date.tomorrow",
-        "tp.date.yesterday",
-        "tp.date.weekday",
-        "tp.file.title",
-        "tp.file.folder",
-        "tp.file.path",
-        "tp.file.content",
-        "tp.file.selection",
-        "tp.file.cursor",
-        "tp.file.cursor_append",
-        "tp.file.last_modified_date",
-        "tp.file.creation_date",
-        "tp.file.tags",
-        "tp.file.include",
-        "tp.file.exists",
-        "tp.file.find_tfile",
-        "tp.frontmatter"
-    )
+
+    // Build pure and cancellable function sets from HandlerRegistry metadata
+    private val pureFunctions: Set<String> by lazy {
+        buildSet {
+            HandlerRegistry.allHandlers.forEach { registration ->
+                if (registration.metadata.pure) {
+                    add("tp.${registration.metadata.module}.${registration.metadata.name}")
+                }
+            }
+            // tp.frontmatter is always pure (it's a non-handler module)
+            add("tp.frontmatter")
+        }
+    }
+
+    // Barrier functions - handlers that require sequential execution
+    // This includes:
+    // - cancellable handlers (show dialogs, require user interaction)
+    // - barrier handlers (have side effects like file operations, clipboard)
+    private val barrierFunctions: Set<String> by lazy {
+        buildSet {
+            HandlerRegistry.allHandlers.forEach { registration ->
+                if (registration.metadata.cancellable || registration.metadata.barrier) {
+                    add("tp.${registration.metadata.module}.${registration.metadata.name}")
+                }
+            }
+        }
+    }
     
     // Reserved keywords that shouldn't be treated as variables
     private val reservedKeywords = setOf(

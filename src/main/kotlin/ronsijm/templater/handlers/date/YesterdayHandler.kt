@@ -9,7 +9,8 @@ import java.time.LocalDate
 @RegisterHandler(
     module = "date",
     description = "Returns yesterday's date",
-    example = "yesterday(\"YYYY-MM-DD\")"
+    example = "yesterday(\"YYYY-MM-DD\")",
+    pure = true
 )
 class YesterdayHandler : CommandHandler<YesterdayRequest, String> {
     override fun handle(request: YesterdayRequest, context: TemplateContext): String {

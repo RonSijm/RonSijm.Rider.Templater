@@ -9,7 +9,8 @@ import java.time.LocalDate
 @RegisterHandler(
     module = "date",
     description = "Returns weekday name with optional format and offset",
-    example = "weekday(\"YYYY-MM-DD\", 0)"
+    example = "weekday(\"YYYY-MM-DD\", 0)",
+    pure = true
 )
 class WeekdayHandler : CommandHandler<WeekdayRequest, String> {
     override fun handle(request: WeekdayRequest, context: TemplateContext): String {

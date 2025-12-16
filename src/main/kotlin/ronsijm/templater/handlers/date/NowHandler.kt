@@ -10,7 +10,8 @@ import java.time.LocalDateTime
 @RegisterHandler(
     module = "date",
     description = "Returns current date/time with optional format and offset",
-    example = "now(\"YYYY-MM-DD HH:mm\", \"+7d\")"
+    example = "now(\"YYYY-MM-DD HH:mm\", \"+7d\")",
+    pure = true
 )
 class NowHandler : CommandHandler<NowRequest, String> {
     override fun handle(request: NowRequest, context: TemplateContext): String {

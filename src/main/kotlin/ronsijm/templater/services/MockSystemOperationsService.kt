@@ -3,13 +3,17 @@
 class MockSystemOperationsService(
     private val promptResponse: String? = "mock prompt response",
     private val suggesterResponse: Any? = "mock suggester response",
+    private val suggesterResponses: List<Any?>? = null,  // For multiple suggester calls
     private val multiSuggesterResponse: List<*>? = listOf("mock", "multi", "suggester")
 ) : SystemOperationsService {
-    
+
     // Track calls for verification in tests
     var promptCalls = mutableListOf<PromptCall>()
     var suggesterCalls = mutableListOf<SuggesterCall>()
     var multiSuggesterCalls = mutableListOf<MultiSuggesterCall>()
+
+    // Counter for suggester calls when using suggesterResponses
+    private var suggesterCallIndex = 0
     
     data class PromptCall(
         val promptText: String,
@@ -52,7 +56,12 @@ class MockSystemOperationsService(
         limit: Int?
     ): Any? {
         suggesterCalls.add(SuggesterCall(textItems, values, throwOnCancel, placeholder, limit))
-        return suggesterResponse
+        // If suggesterResponses is provided, return the next response in sequence
+        return if (suggesterResponses != null && suggesterCallIndex < suggesterResponses.size) {
+            suggesterResponses[suggesterCallIndex++]
+        } else {
+            suggesterResponse
+        }
     }
     
     override fun multiSuggester(

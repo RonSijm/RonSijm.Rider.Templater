@@ -7,7 +7,8 @@ import ronsijm.templater.parser.TemplateContext
 @RegisterHandler(
     module = "file",
     description = "Creates a new file",
-    example = "create_new('template content', 'filename.md', true, 'folder')"
+    example = "create_new('template content', 'filename.md', true, 'folder')",
+    barrier = true
 )
 class CreateNewHandler : CommandHandler<CreateNewRequest, String> {
     override fun handle(request: CreateNewRequest, context: TemplateContext): String {

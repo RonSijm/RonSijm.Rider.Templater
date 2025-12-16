@@ -7,7 +7,8 @@ import ronsijm.templater.parser.TemplateContext
 @RegisterHandler(
     module = "file",
     description = "Finds a file by name",
-    example = "find_t_file('filename.md')"
+    example = "find_t_file('filename.md')",
+    pure = true
 )
 class FindTFileHandler : CommandHandler<FindTFileRequest, String> {
     override fun handle(request: FindTFileRequest, context: TemplateContext): String {

@@ -8,7 +8,8 @@ import ronsijm.templater.utils.ErrorMessages
 @RegisterHandler(
     module = "system",
     description = "Gets clipboard contents",
-    example = "clipboard()"
+    example = "clipboard()",
+    barrier = true
 )
 class ClipboardHandler : CommandHandler<ClipboardRequest, String?> {
     override fun handle(request: ClipboardRequest, context: TemplateContext): String? {

@@ -7,6 +7,25 @@ import com.intellij.openapi.components.Storage
 import com.intellij.util.xmlb.XmlSerializerUtil
 
 /**
+ * When to show popup notification after template execution
+ */
+enum class PopupBehavior {
+    ALWAYS,
+    ONLY_ON_ERROR,
+    NEVER
+}
+
+/**
+ * What to do when user cancels a dialog (prompt, suggester, etc.)
+ */
+enum class CancelBehavior {
+    /** Remove the template expression (replace with empty string) */
+    REMOVE_EXPRESSION,
+    /** Keep the original template expression unchanged */
+    KEEP_EXPRESSION
+}
+
+/**
  * Persistent settings for Templater plugin
  * Settings are stored at application level (shared across all projects)
  */
@@ -14,31 +33,41 @@ import com.intellij.util.xmlb.XmlSerializerUtil
     name = "TemplaterSettings",
     storages = [Storage("TemplaterSettings.xml")]
 )
-class TemplaterSettings : PersistentStateComponent<TemplaterSettings> {
+class TemplaterSettings : PersistentStateComponent<TemplaterSettings>, TemplaterSettingsData {
 
     /**
      * Enable experimental parallel execution of independent template blocks
      * When enabled, blocks that don't depend on each other will be executed concurrently
      */
-    var enableParallelExecution: Boolean = false
+    override var enableParallelExecution: Boolean = false
 
     /**
      * Enable syntax validation before template execution
      * Shows warnings for malformed template syntax
      */
-    var enableSyntaxValidation: Boolean = true
+    override var enableSyntaxValidation: Boolean = true
 
     /**
      * Show execution statistics in the notification after template execution
      * Includes timing and parallelization info when parallel execution is enabled
      */
-    var showExecutionStats: Boolean = false
+    override var showExecutionStats: Boolean = false
 
     /**
      * Enable executing only the selected text when there is a selection
      * When disabled, the entire document is always processed regardless of selection
      */
-    var enableSelectionOnlyExecution: Boolean = true
+    override var enableSelectionOnlyExecution: Boolean = true
+
+    /**
+     * When to show popup notification after template execution
+     */
+    override var popupBehavior: PopupBehavior = PopupBehavior.ALWAYS
+
+    /**
+     * What to do when user cancels a dialog (prompt, suggester, etc.)
+     */
+    override var cancelBehavior: CancelBehavior = CancelBehavior.REMOVE_EXPRESSION
 
     override fun getState(): TemplaterSettings = this
 

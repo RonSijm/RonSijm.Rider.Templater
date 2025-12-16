@@ -8,6 +8,7 @@ import ronsijm.templater.services.ServiceContainer
 import ronsijm.templater.services.IntelliJSystemOperationsService
 import ronsijm.templater.services.IntelliJFileOperationsService
 import ronsijm.templater.settings.TemplaterSettings
+import ronsijm.templater.settings.PopupBehavior
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -50,22 +51,27 @@ class ExecuteTemplateAction : AnAction() {
                 executeTemplate(project, document, file, settings)
             }
 
-            val message = if (settings.showExecutionStats) {
-                val elapsed = System.currentTimeMillis() - startTime
-                val mode = if (settings.enableParallelExecution) "parallel (experimental)" else "sequential"
-                val scope = if (useSelectionOnly) "selection" else "document"
-                "Template executed successfully!\nScope: $scope\nMode: $mode\nTime: ${elapsed}ms"
-            } else {
-                "Template executed successfully!"
+            // Show success popup based on settings
+            if (settings.popupBehavior == PopupBehavior.ALWAYS) {
+                val message = if (settings.showExecutionStats) {
+                    val elapsed = System.currentTimeMillis() - startTime
+                    val mode = if (settings.enableParallelExecution) "parallel (experimental)" else "sequential"
+                    val scope = if (useSelectionOnly) "selection" else "document"
+                    "Template executed successfully!\nScope: $scope\nMode: $mode\nTime: ${elapsed}ms"
+                } else {
+                    "Template executed successfully!"
+                }
+                Messages.showInfoMessage(project, message, "Templater")
             }
-
-            Messages.showInfoMessage(project, message, "Templater")
         } catch (ex: Exception) {
-            Messages.showErrorDialog(
-                project,
-                "Error executing template: ${ex.message}",
-                "Templater Error"
-            )
+            // Show error popup unless set to NEVER
+            if (settings.popupBehavior != PopupBehavior.NEVER) {
+                Messages.showErrorDialog(
+                    project,
+                    "Error executing template: ${ex.message}",
+                    "Templater Error"
+                )
+            }
         }
     }
 
