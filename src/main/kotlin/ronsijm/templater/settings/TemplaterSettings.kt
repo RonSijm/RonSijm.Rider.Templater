@@ -34,6 +34,12 @@ class TemplaterSettings : PersistentStateComponent<TemplaterSettings> {
      */
     var showExecutionStats: Boolean = false
 
+    /**
+     * Enable executing only the selected text when there is a selection
+     * When disabled, the entire document is always processed regardless of selection
+     */
+    var enableSelectionOnlyExecution: Boolean = true
+
     override fun getState(): TemplaterSettings = this
 
     override fun loadState(state: TemplaterSettings) {

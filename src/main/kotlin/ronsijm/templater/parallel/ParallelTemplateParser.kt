@@ -195,19 +195,72 @@ class ParallelTemplateParser(
         context: TemplateContext,
         moduleFactory: ModuleFactory
     ): String {
-        val normalized = if (command.startsWith("tp.")) command.substring(3) else command
-        val parts = normalized.split(".")
-        if (parts.isEmpty()) return ""
+        // Remove 'await' keyword if present
+        val withoutAwait = if (command.startsWith("await ")) command.substring(6).trim() else command
+        val normalized = if (withoutAwait.startsWith("tp.")) withoutAwait.substring(3) else withoutAwait
 
-        val module = parts[0]
+        // Extract module name (first part before .) - don't split on dots inside arguments
+        val dotIndex = normalized.indexOf('.')
+        if (dotIndex == -1) return ""
+
+        val module = normalized.substring(0, dotIndex)
+        val rest = normalized.substring(dotIndex + 1) // Everything after module.
+        val parts = listOf(module, rest)
+
         return when (module) {
-            "frontmatter" -> moduleFactory.getFrontmatterModule().getValue(parts)?.toString() ?: ""
+            "frontmatter" -> {
+                // Frontmatter needs the full path split (but only outside of parentheses)
+                val frontmatterParts = splitOutsideParentheses(normalized)
+                moduleFactory.getFrontmatterModule().getValue(frontmatterParts)?.toString() ?: ""
+            }
             "date" -> CommandExecutionHelper.executeDateCommand(parts, context, errorOnMissingParts = false)
             "file" -> CommandExecutionHelper.executeFileCommand(parts, context, errorOnMissingParts = false)
             "system" -> CommandExecutionHelper.executeSystemCommand(parts, context, errorOnMissingParts = false)
-            "config" -> moduleFactory.getConfigModule().executeProperty(parts.getOrElse(1) { "" }) ?: ""
+            "config" -> moduleFactory.getConfigModule().executeProperty(rest.substringBefore("(").substringBefore(".")) ?: ""
             else -> ""
         }
+    }
+
+    /** Split string on dots, but only outside of parentheses and quotes */
+    private fun splitOutsideParentheses(str: String): List<String> {
+        val parts = mutableListOf<String>()
+        var current = StringBuilder()
+        var parenDepth = 0
+        var inQuotes = false
+        var quoteChar = ' '
+
+        for (char in str) {
+            when {
+                (char == '"' || char == '\'') && parenDepth == 0 -> {
+                    if (!inQuotes) {
+                        inQuotes = true
+                        quoteChar = char
+                    } else if (char == quoteChar) {
+                        inQuotes = false
+                    }
+                    current.append(char)
+                }
+                char == '(' && !inQuotes -> {
+                    parenDepth++
+                    current.append(char)
+                }
+                char == ')' && !inQuotes -> {
+                    parenDepth--
+                    current.append(char)
+                }
+                char == '.' && parenDepth == 0 && !inQuotes -> {
+                    parts.add(current.toString())
+                    current = StringBuilder()
+                }
+                else -> current.append(char)
+            }
+        }
+
+        if (current.isNotEmpty()) {
+            parts.add(current.toString())
+        }
+
+        return parts
     }
 
     private fun applyResults(

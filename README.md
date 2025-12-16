@@ -40,6 +40,30 @@ cd RonSijm.Rider.Templater
 
 Output: `build/distributions/rider-templater-1.0.0.zip` or `intellij-templater-1.0.0.zip`
 
+### Plugin Compatibility
+
+- Android Studio
+- AppCode
+- Aqua
+- CLion
+- Code With Me Guest
+- DataSpell
+- DataGrip
+- JetBrains Gateway
+- GoLand
+- IntelliJ IDEA
+- JetBrains Client
+- MPS
+- PhpStorm
+- PyCharm
+- Rider
+- RubyMine
+- RustRover
+- WebStorm
+- Writerside
+
+(Determined by plugin.xml)
+
 ---
 
 ## Quick Start
@@ -50,6 +74,8 @@ Output: `build/distributions/rider-templater-1.0.0.zip` or `intellij-templater-1
 ### Execute Selection Only
 
 Select a specific template block (e.g., a single `<%* %>` block) and execute to process only that selection. The rest of the document remains unchanged.
+
+> **Tip:** This behavior can be disabled in **Settings > Tools > Templater** by unchecking "Execute current selection only". When disabled, the entire document is always processed regardless of selection.
 
 ```markdown
 # Meeting Notes - <% tp.date.now("YYYY-MM-DD") %>
@@ -63,6 +89,25 @@ for (let i = 1; i <= 3; i++) {
 }
 %>
 ```
+---
+
+## Screenshots
+
+**Date Functions**
+
+| Before | After |
+|--------|-------|
+| ![Date Before](docs/images/date-before.png) | ![Date After](docs/images/date-after.png) |
+
+**Frontmatter Functions**
+
+| Before | After                                                   |
+|--------|---------------------------------------------------------|
+| ![Frontmatter Before](docs/images/frontmatter-before.png) | ![Frontmatter After](docs/images/frontmatter-after.png) |
+
+### Tutorial Video
+
+[![Templater Tutorial](https://img.youtube.com/vi/8aji2WeYep4/0.jpg)](https://www.youtube.com/watch?v=8aji2WeYep4)
 
 ---
 

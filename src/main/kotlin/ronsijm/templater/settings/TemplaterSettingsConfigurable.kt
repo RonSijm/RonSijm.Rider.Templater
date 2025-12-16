@@ -16,6 +16,7 @@ class TemplaterSettingsConfigurable : Configurable {
     private var parallelExecutionCheckbox: JCheckBox? = null
     private var syntaxValidationCheckbox: JCheckBox? = null
     private var showStatsCheckbox: JCheckBox? = null
+    private var selectionOnlyCheckbox: JCheckBox? = null
 
     override fun getDisplayName(): String = "Templater"
 
@@ -76,8 +77,15 @@ class TemplaterSettingsConfigurable : Configurable {
         }
         panel.add(showStatsCheckbox, gbc)
 
-        // Spacer to push everything to the top
+        // Selection only checkbox
         gbc.gridy = 6
+        selectionOnlyCheckbox = JCheckBox("Execute current selection only").apply {
+            toolTipText = "When text is selected, only execute templates in the selection instead of the entire document"
+        }
+        panel.add(selectionOnlyCheckbox, gbc)
+
+        // Spacer to push everything to the top
+        gbc.gridy = 7
         gbc.weighty = 1.0
         gbc.fill = GridBagConstraints.BOTH
         panel.add(JPanel(), gbc)
@@ -91,7 +99,8 @@ class TemplaterSettingsConfigurable : Configurable {
         val settings = TemplaterSettings.getInstance()
         return parallelExecutionCheckbox?.isSelected != settings.enableParallelExecution ||
                syntaxValidationCheckbox?.isSelected != settings.enableSyntaxValidation ||
-               showStatsCheckbox?.isSelected != settings.showExecutionStats
+               showStatsCheckbox?.isSelected != settings.showExecutionStats ||
+               selectionOnlyCheckbox?.isSelected != settings.enableSelectionOnlyExecution
     }
 
     override fun apply() {
@@ -99,6 +108,7 @@ class TemplaterSettingsConfigurable : Configurable {
         settings.enableParallelExecution = parallelExecutionCheckbox?.isSelected ?: false
         settings.enableSyntaxValidation = syntaxValidationCheckbox?.isSelected ?: true
         settings.showExecutionStats = showStatsCheckbox?.isSelected ?: false
+        settings.enableSelectionOnlyExecution = selectionOnlyCheckbox?.isSelected ?: true
     }
 
     override fun reset() {
@@ -106,6 +116,7 @@ class TemplaterSettingsConfigurable : Configurable {
         parallelExecutionCheckbox?.isSelected = settings.enableParallelExecution
         syntaxValidationCheckbox?.isSelected = settings.enableSyntaxValidation
         showStatsCheckbox?.isSelected = settings.showExecutionStats
+        selectionOnlyCheckbox?.isSelected = settings.enableSelectionOnlyExecution
     }
 
     override fun disposeUIResources() {
@@ -113,6 +124,7 @@ class TemplaterSettingsConfigurable : Configurable {
         parallelExecutionCheckbox = null
         syntaxValidationCheckbox = null
         showStatsCheckbox = null
+        selectionOnlyCheckbox = null
     }
 }
 

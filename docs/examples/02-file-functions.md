@@ -45,4 +45,3 @@ This template demonstrates all file-related functions.
 ---
 *Press Alt+R to execute this template*
 *Try selecting some text before executing to test tp.file.selection()*
-

@@ -7,7 +7,7 @@
 }
 
 group = "ronsijm.templater"
-version = "1.0.0"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
@@ -32,6 +32,7 @@ dependencies {
         intellijIdeaCommunity("2025.2.3")
         instrumentationTools()
         pluginVerifier()
+        zipSigner()
     }
 }
 
@@ -51,7 +52,7 @@ intellijPlatform {
     pluginConfiguration {
         id = "ronsijm.templater"
         name = "Templater"
-        version = "1.0.0"
+        version = "1.0.1"
         description = "Template engine for JetBrains IDEs with Obsidian Templater-like syntax"
 
         ideaVersion {

@@ -107,8 +107,6 @@ class ScriptEngine(templateContext: TemplateContext) {
         return scriptContext.getResultAccumulator()
     }
 
-
-
     /**
      * Evaluate an expression and return its value
      * Delegates to ScriptEvaluator

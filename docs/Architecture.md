@@ -1,4 +1,4 @@
-﻿# Internal Architecture Documentation
+﻿# Architecture Documentation
 
 This document describes the internal structure and purpose of each file in the Templater plugin.
 
@@ -66,7 +66,7 @@ flowchart LR
 ### `actions/ExecuteTemplateAction.kt`
 **Main IDE action** triggered by Alt+R (Rider) or Alt+Shift+R (IntelliJ). Handles:
 - Full document execution
-- Selection-only execution (new feature)
+- Selection-only execution (can be disabled via "Execute current selection only" setting)
 - Frontmatter preservation
 - File rename/move operations after template execution
 

@@ -182,11 +182,18 @@ class TemplateParser(
      * Example: "tp.frontmatter.title" or "tp.date.now()"
      */
     private fun executeCommand(command: String, context: TemplateContext): String {
-        // Remove "tp." prefix if present
-        val normalized = if (command.startsWith("tp.")) {
-            command.substring(3)
+        // Remove 'await' keyword if present
+        val withoutAwait = if (command.startsWith("await ")) {
+            command.substring(6).trim()
         } else {
             command
+        }
+
+        // Remove "tp." prefix if present
+        val normalized = if (withoutAwait.startsWith("tp.")) {
+            withoutAwait.substring(3)
+        } else {
+            withoutAwait
         }
 
         // Extract module name (first part before .)

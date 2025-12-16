@@ -39,11 +39,12 @@ class ExecuteTemplateAction : AnAction() {
         val startTime = if (settings.showExecutionStats) System.currentTimeMillis() else 0L
 
         try {
-            // Check if there's a selection
+            // Check if there's a selection and if selection-only execution is enabled
             val selectionModel = editor.selectionModel
             val hasSelection = selectionModel.hasSelection()
+            val useSelectionOnly = hasSelection && settings.enableSelectionOnlyExecution
 
-            if (hasSelection) {
+            if (useSelectionOnly) {
                 executeSelectedTemplate(project, editor, document, file, settings)
             } else {
                 executeTemplate(project, document, file, settings)
@@ -52,7 +53,7 @@ class ExecuteTemplateAction : AnAction() {
             val message = if (settings.showExecutionStats) {
                 val elapsed = System.currentTimeMillis() - startTime
                 val mode = if (settings.enableParallelExecution) "parallel (experimental)" else "sequential"
-                val scope = if (hasSelection) "selection" else "document"
+                val scope = if (useSelectionOnly) "selection" else "document"
                 "Template executed successfully!\nScope: $scope\nMode: $mode\nTime: ${elapsed}ms"
             } else {
                 "Template executed successfully!"
@@ -122,15 +123,62 @@ class ExecuteTemplateAction : AnAction() {
             templateParser.parse(selectedText, context, project)
         }
 
-        // Replace only the selected text
+        // Replace only the selected text and apply pending file operations
         WriteCommandAction.runWriteCommandAction(project) {
             document.replaceString(selectionStart, selectionEnd, processedSelection)
 
             // Clear selection after execution
             selectionModel.removeSelection()
+
+            // Apply pending rename operation from service
+            if (fileOperationService.pendingRename != null) {
+                try {
+                    file.rename(this, fileOperationService.pendingRename!!)
+                } catch (ex: Exception) {
+                    Messages.showErrorDialog(
+                        project,
+                        "Failed to rename file: ${ex.message}",
+                        "Templater Error"
+                    )
+                }
+            }
+
+            // Apply pending move operation from service
+            if (fileOperationService.pendingMove != null) {
+                try {
+                    val targetPath = fileOperationService.pendingMove!!
+                    val parentPath = targetPath.substringBeforeLast("/", "")
+
+                    if (parentPath.isNotEmpty()) {
+                        val baseDir = file.parent
+                        var targetDir = baseDir
+
+                        if (targetPath.startsWith("/")) {
+                            targetDir = project.guessProjectDir()
+                            val pathParts = parentPath.substring(1).split("/")
+                            for (part in pathParts) {
+                                if (part.isNotEmpty()) {
+                                    targetDir = targetDir?.findChild(part)
+                                        ?: targetDir?.createChildDirectory(this, part)
+                                }
+                            }
+                        }
+
+                        if (targetDir != null && targetDir != file.parent) {
+                            file.move(this, targetDir)
+                        }
+                    }
+                } catch (ex: Exception) {
+                    Messages.showErrorDialog(
+                        project,
+                        "Failed to move file: ${ex.message}",
+                        "Templater Error"
+                    )
+                }
+            }
         }
     }
-    
+
     /**
      * Execute template in the document
      */
