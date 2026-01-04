@@ -1,0 +1,107 @@
+flowchart TD
+%% 09-parallel-test
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1["let counter = 0"]
+class n1 variable
+n2["counter = counter + 1"]
+class n2 variable
+n3["counter = counter + 1"]
+class n3 variable
+n4["counter = counter + 1"]
+class n4 variable
+n5[["fork (2 parallel)"]]
+class n5 fork
+n6[["join"]]
+class n6 join
+n7["counter"]
+class n7 interpolation
+n8["let greeting = 'Hello'"]
+class n8 execution
+n9["greeting = greeting + ' World'"]
+class n9 variable
+n10["greeting = greeting + '!'"]
+class n10 variable
+n11[["fork (3 parallel)"]]
+class n11 fork
+n12[["join"]]
+class n12 join
+n13["greeting"]
+class n13 interpolation
+n14["tR += 'A' tR += 'B' tR += 'C'"]
+class n14 execution
+n15["let x = 5"]
+class n15 execution
+n16["let y = x * 2"]
+class n16 variable
+n17["let z = y + x"]
+class n17 variable
+n18["z"]
+class n18 interpolation
+n19(["End"])
+class n19 startEnd
+
+%% Control flow
+n0 --> n1
+n1 --> n2
+n2 --> n3
+n3 --> n4
+n4 --> n5
+n5 ==> n7
+n7 --> n6
+n5 ==> n8
+n8 --> n6
+n6 --> n9
+n9 --> n10
+n10 --> n11
+n11 ==> n13
+n13 --> n12
+n11 ==> n14
+n14 --> n12
+n11 ==> n15
+n15 --> n12
+n12 --> n16
+n16 --> n17
+n17 --> n18
+n18 --> n19
+
+%% ========================================
+%% PARALLEL EXECUTION ANALYSIS
+%% ========================================
+%%
+%% Parallel Group 1 (n5):
+%% 2 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: greeting. Variables read (from previous groups): counter, Hello. No blocks write to template output (tR) - order doesn't matter
+%%
+%% Blocks in this group:
+%%   - counter
+%%     reads: counter
+%%   - let greeting = "Hello"
+%%     reads: Hello
+%%     writes: greeting
+%%
+%% Parallel Group 2 (n11):
+%% 3 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: x. Variables read (from previous groups): greeting, A, B, C
+%%
+%% Blocks in this group:
+%%   - greeting
+%%     reads: greeting
+%%   - tR += "A" tR += "B" tR += "C"
+%%     reads: A, B, C
+%%   - let x = 5
+%%     writes: x

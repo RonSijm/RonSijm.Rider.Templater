@@ -1,0 +1,25 @@
+flowchart TD
+%% 03-frontmatter-functions
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1(["End"])
+class n1 startEnd
+
+%% Control flow
+n0 --> n1

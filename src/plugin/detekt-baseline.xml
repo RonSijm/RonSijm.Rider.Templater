@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>EmptyCatchBlock:TemplateCompletionContributor.kt$TemplateCompletionProvider${ }</ID>
+    <ID>MaxLineLength:TemplateCompletionContributor.kt$TemplateCompletionProvider$FunctionSuggestion("on_all_templates_executed", "on_all_templates_executed(callback)", "Execute callback after all templates finish", "callback")</ID>
+    <ID>MaxLineLength:TemplaterSettingsConfigurable.kt$TemplaterSettingsConfigurable$val parallelDesc = JLabel("&lt;html>&lt;font color='gray' size='-1'>Analyzes dependencies between blocks and runs independent blocks concurrently&lt;/font>&lt;/html>")</ID>
+    <ID>NestedBlockDepth:ExecuteTemplateAction.kt$ExecuteTemplateAction$private fun applyPendingFileOperations( project: Project, file: VirtualFile, fileOperationService: IntelliJFileOperationsService )</ID>
+    <ID>NewLineAtEndOfFile:IntelliJFileOperationsService.kt$ronsijm.templater.services.IntelliJFileOperationsService.kt</ID>
+    <ID>NewLineAtEndOfFile:IntelliJSystemOperationsService.kt$ronsijm.templater.services.IntelliJSystemOperationsService.kt</ID>
+    <ID>SpacingBetweenPackageAndImports:ActiveDebugSession.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:AppModule.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:BreakpointEditorFactoryListener.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:CompletionContextAnalyzerTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ControlFlowDiagramPanel.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DebugEventListener.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DebugLineHighlighter.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DebugTemplateAction.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ExecuteTemplateAction.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:IntelliJAppModuleProvider.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:IntelliJFileOperationsService.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:IntelliJFileSystem.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:IntelliJSystemOperationsService.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:MermaidExportService.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:MermaidSettingsPanel.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ProgressIndicatorCancellationChecker.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:RunSelectedTemplateAction.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ShowControlFlowAction.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TemplateCompletionContributor.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TemplateExecutionService.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TemplateRunLineMarkerProvider.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TemplateRunLineMarkerProviderTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TemplaterDebugService.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TemplaterDebugToolWindowFactory.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TemplaterSettingsConfigurable.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TemplaterSettingsTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:VirtualFileHandle.kt$ </ID>
+    <ID>UnusedImports:ActiveDebugSession.kt$import ronsijm.templater.debug.DebugAction</ID>
+    <ID>UnusedImports:ActiveDebugSession.kt$import ronsijm.templater.debug.DebugBreakpoint</ID>
+    <ID>UnusedImports:ActiveDebugSession.kt$import ronsijm.templater.debug.ExecutionStep</ID>
+    <ID>UnusedImports:ActiveDebugSession.kt$import ronsijm.templater.debug.ExecutionTrace</ID>
+    <ID>UnusedImports:ControlFlowDiagramPanel.kt$import java.awt.geom.AffineTransform</ID>
+    <ID>UnusedImports:ControlFlowDiagramPanel.kt$import ronsijm.templater.debug.FunctionScope</ID>
+    <ID>UnusedImports:DebugLineHighlighter.kt$import com.intellij.openapi.editor.colors.EditorColorsManager</ID>
+    <ID>UnusedImports:DebugTemplateAction.kt$import ronsijm.templater.debug.ActiveDebugSession</ID>
+    <ID>UnusedImports:IntelliJFileSystem.kt$import ronsijm.templater.filesystem.FileHandle</ID>
+    <ID>UnusedImports:IntelliJFileSystem.kt$import ronsijm.templater.filesystem.FileSystem</ID>
+    <ID>UnusedImports:ProgressIndicatorCancellationChecker.kt$import com.intellij.openapi.progress.ProcessCanceledException</ID>
+    <ID>UnusedImports:TemplateBreakpointGutterProvider.kt$import com.intellij.icons.AllIcons</ID>
+    <ID>UnusedImports:TemplaterDebugService.kt$import java.util.concurrent.CountDownLatch</ID>
+    <ID>UnusedImports:TemplaterDebugService.kt$import java.util.concurrent.atomic.AtomicReference</ID>
+    <ID>UnusedImports:TemplaterDebugService.kt$import ronsijm.templater.debug.DebugAction</ID>
+    <ID>UnusedImports:TemplaterDebugService.kt$import ronsijm.templater.debug.DebugBreakpoint</ID>
+    <ID>UnusedImports:TemplaterDebugService.kt$import ronsijm.templater.debug.ExecutionStep</ID>
+    <ID>UnusedImports:TemplaterDebugService.kt$import ronsijm.templater.debug.ExecutionTrace</ID>
+    <ID>UnusedImports:TemplaterDebugToolWindowFactory.kt$import com.intellij.ui.JBColor</ID>
+    <ID>UnusedImports:TemplaterDebugToolWindowFactory.kt$import com.intellij.ui.table.JBTable</ID>
+    <ID>UnusedImports:TemplaterDebugToolWindowFactory.kt$import javax.swing.table.DefaultTableModel</ID>
+    <ID>UnusedImports:TemplaterDebugToolWindowFactory.kt$import ronsijm.templater.debug.DebugAction</ID>
+    <ID>UnusedImports:TemplaterDebugToolWindowFactory.kt$import ronsijm.templater.debug.DebugBreakpoint</ID>
+    <ID>UnusedImports:TemplaterDebugToolWindowFactory.kt$import ronsijm.templater.debug.ExecutionStep</ID>
+    <ID>UnusedImports:VirtualFileHandle.kt$import ronsijm.templater.filesystem.FileHandle</ID>
+    <ID>UnusedPrivateProperty:AppModule.kt$AppModule$private val context: TemplateContext</ID>
+    <ID>UnusedPrivateProperty:ControlFlowDiagramPanel.kt$ControlFlowDiagramPanel$layerIndex</ID>
+    <ID>UnusedPrivateProperty:ControlFlowDiagramPanel.kt$ControlFlowDiagramPanel$val layerWidth = layer.size * (nodeWidth + horizontalSpacing) - horizontalSpacing</ID>
+    <ID>UnusedPrivateProperty:DebugLineHighlighter.kt$DebugLineHighlighter.Companion$private val EXECUTION_POINT_COLOR = JBColor( Color(255, 200, 0), Color(252, 225, 128) )</ID>
+    <ID>UnusedPrivateProperty:TemplateCompletionContributor.kt$TemplateCompletionProvider$val typeText = when (value) { is String -> "string" is Number -> "number" is Boolean -> "boolean" is List&lt;*> -> "array" is Map&lt;*, *> -> "object" else -> "value" }</ID>
+  </CurrentIssues>
+</SmellBaseline>

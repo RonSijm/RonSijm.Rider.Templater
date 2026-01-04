@@ -1,0 +1,94 @@
+flowchart TD
+%% BenchFrontmatterLookup
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1["const now = () =&gt; (typeof performance..."]
+class n1 execution
+n2["const RUNS = 30000"]
+class n2 variable
+n3[/"function bench(name, fn)"/]
+class n3 funcDecl
+n13["// Ensure your note has frontmatter l..."]
+class n13 execution
+n14["// ---"]
+class n14 execution
+n15["// title: Example Title"]
+class n15 execution
+n16["// tags: [a, b, c]"]
+class n16 execution
+n17["// ---"]
+class n17 execution
+n18["tR += '# Frontmatter lookup benchmark..."]
+class n18 variable
+n19["bench('tp.frontmatter.title (present)..."]
+class n19 funcCall
+n20["bench('tp.frontmatter.missing (missin..."]
+class n20 funcCall
+n21["bench('tp.frontmatter['key with space..."]
+class n21 funcCall
+n22(["End"])
+class n22 startEnd
+
+%% Function subgraphs
+subgraph scope0["bench()"]
+    direction TB
+    n4["const t0 = now()"]
+    class n4 variable
+    n5["let sink = 0"]
+    class n5 variable
+    n6{{"for (for (let i = 0; i &lt; RUNS; i++))"}}
+    class n6 loop
+    n7(["next iteration"])
+    class n7 loopEnd
+    n8["sink ^= fn(i) | 0"]
+    class n8 funcCall
+    n9["loop done"]
+    class n9 execution
+    n10["const t1 = now()"]
+    class n10 variable
+    n11["const ms = t1 - t0"]
+    class n11 variable
+    n12["tR += `- ${name}: ${ms.toFixed(3)} ms..."]
+    class n12 funcCall
+end
+
+%% Control flow
+n0 --> n1
+n1 --> n2
+n2 --> n3
+n3 --> n4
+n4 --> n5
+n5 --> n6
+n6 -->|yes| n8
+n8 --> n7
+n7 -.->|repeat| n6
+n6 -->|done| n9
+n9 --> n10
+n10 --> n11
+n11 --> n12
+n3 --> n13
+n13 --> n14
+n14 --> n15
+n15 --> n16
+n16 --> n17
+n17 --> n18
+n18 --> n19
+n19 --> n20
+n20 --> n21
+n21 --> n22

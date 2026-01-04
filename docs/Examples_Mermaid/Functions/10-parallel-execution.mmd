@@ -1,0 +1,207 @@
+flowchart TD
+%% 10-parallel-execution
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1[["fork (3 parallel)"]]
+class n1 fork
+n2[["join"]]
+class n2 join
+n3["let a = tp.date.now('YYYY')"]
+class n3 execution
+n4["let b = tp.date.now('MM')"]
+class n4 execution
+n5["let c = tp.date.now('DD')"]
+class n5 execution
+n6[["fork (4 parallel)"]]
+class n6 fork
+n7[["join"]]
+class n7 join
+n8["a"]
+class n8 interpolation
+n9["b"]
+class n9 interpolation
+n10["c"]
+class n10 interpolation
+n11["let counter = 0"]
+class n11 execution
+n12["counter = counter + 1"]
+class n12 variable
+n13["counter = counter + 1"]
+class n13 variable
+n14["counter = counter + 1"]
+class n14 variable
+n15[["fork (3 parallel)"]]
+class n15 fork
+n16[["join"]]
+class n16 join
+n17["counter"]
+class n17 interpolation
+n18["let x = 10"]
+class n18 execution
+n19["let y = 20"]
+class n19 execution
+n20[["fork (3 parallel)"]]
+class n20 fork
+n21[["join"]]
+class n21 join
+n22["let z = x + y"]
+class n22 execution
+n23["x"]
+class n23 interpolation
+n24["y"]
+class n24 interpolation
+n25[["fork (2 parallel)"]]
+class n25 fork
+n26[["join"]]
+class n26 join
+n27["z"]
+class n27 interpolation
+n28["tR += 'First '"]
+class n28 execution
+n29["tR += 'Second '"]
+class n29 variable
+n30[["fork (2 parallel)"]]
+class n30 fork
+n31[["join"]]
+class n31 join
+n32["tR += 'Third'"]
+class n32 execution
+n33["tR"]
+class n33 interpolation
+n34(["End"])
+class n34 startEnd
+
+%% Control flow
+n0 --> n1
+n1 ==> n3
+n3 --> n2
+n1 ==> n4
+n4 --> n2
+n1 ==> n5
+n5 --> n2
+n2 --> n6
+n6 ==> n8
+n8 --> n7
+n6 ==> n9
+n9 --> n7
+n6 ==> n10
+n10 --> n7
+n6 ==> n11
+n11 --> n7
+n7 --> n12
+n12 --> n13
+n13 --> n14
+n14 --> n15
+n15 ==> n17
+n17 --> n16
+n15 ==> n18
+n18 --> n16
+n15 ==> n19
+n19 --> n16
+n16 --> n20
+n20 ==> n22
+n22 --> n21
+n20 ==> n23
+n23 --> n21
+n20 ==> n24
+n24 --> n21
+n21 --> n25
+n25 ==> n27
+n27 --> n26
+n25 ==> n28
+n28 --> n26
+n26 --> n29
+n29 --> n30
+n30 ==> n32
+n32 --> n31
+n30 ==> n33
+n33 --> n31
+n31 --> n34
+
+%% ========================================
+%% PARALLEL EXECUTION ANALYSIS
+%% ========================================
+%%
+%% Parallel Group 1 (n1):
+%% 3 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: a, b, c. Variables read (from previous groups): date, now, YYYY, MM, DD. No blocks write to template output (tR) - order doesn't matter
+%%
+%% Blocks in this group:
+%%   - let a = tp.date.now("YYYY")
+%%     reads: date, now, YYYY
+%%     writes: a
+%%   - let b = tp.date.now("MM")
+%%     reads: date, now, MM
+%%     writes: b
+%%   - let c = tp.date.now("DD")
+%%     reads: date, now, DD
+%%     writes: c
+%%
+%% Parallel Group 2 (n6):
+%% 4 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: counter. Variables read (from previous groups): a, b, c. No blocks write to template output (tR) - order doesn't matter
+%%
+%% Blocks in this group:
+%%   - a
+%%     reads: a
+%%   - b
+%%     reads: b
+%%   - c
+%%     reads: c
+%%   - let counter = 0
+%%     writes: counter
+%%
+%% Parallel Group 3 (n15):
+%% 3 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: x, y. Variables read (from previous groups): counter. No blocks write to template output (tR) - order doesn't matter
+%%
+%% Blocks in this group:
+%%   - counter
+%%     reads: counter
+%%   - let x = 10
+%%     writes: x
+%%   - let y = 20
+%%     writes: y
+%%
+%% Parallel Group 4 (n20):
+%% 3 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: z. Variables read (from previous groups): x, y. No blocks write to template output (tR) - order doesn't matter
+%%
+%% Blocks in this group:
+%%   - let z = x + y
+%%     reads: x, y
+%%     writes: z
+%%   - x
+%%     reads: x
+%%   - y
+%%     reads: y
+%%
+%% Parallel Group 5 (n25):
+%% All 2 blocks only read variables (no writes) - safe to run in parallel. Variables read: z, First
+%%
+%% Blocks in this group:
+%%   - z
+%%     reads: z
+%%   - tR += "First "
+%%     reads: First
+%%
+%% Parallel Group 6 (n30):
+%% All 2 blocks only read variables (no writes) - safe to run in parallel. Variables read: Third
+%%
+%% Blocks in this group:
+%%   - tR += "Third"
+%%     reads: Third
+%%   - tR
+%%     (no variable dependencies)

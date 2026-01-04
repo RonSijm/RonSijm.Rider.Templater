@@ -1,0 +1,132 @@
+<idea-plugin>
+    <id>ronsijm.templater</id>
+    <name>Templater</name>
+    <vendor>RonSijm</vendor>
+
+    <description><![CDATA[
+    <h1>Templater</h1>
+
+    <p>A powerful template engine for JetBrains IDEs, inspired by Obsidian's Templater plugin.</p>
+
+    <h2>Features</h2>
+    <ul>
+        <li><strong>Date/Time Functions</strong> - Insert formatted dates with <code>tp.date.now()</code>, <code>tp.date.tomorrow()</code>, etc.</li>
+        <li><strong>File Operations</strong> - Access file metadata, rename, move, create files</li>
+        <li><strong>System Interactions</strong> - Prompts, dialogs, clipboard access</li>
+        <li><strong>Web Requests</strong> - Fetch data from APIs, daily quotes, random images</li>
+        <li><strong>JavaScript-like Scripting</strong> - Variables, loops, conditionals, template literals</li>
+        <li><strong>Frontmatter Support</strong> - Access YAML frontmatter variables</li>
+    </ul>
+
+    <h2>Quick Start</h2>
+    <p>Use <code>&lt;% tp.date.now("YYYY-MM-DD") %&gt;</code> to insert the current date.</p>
+    <p>Execute templates with <strong>Alt+R</strong> (Visual Studio keymap) or <strong>Alt+Shift+R</strong> (default keymap), or via the Tools menu.</p>
+
+    <h2>Syntax</h2>
+    <ul>
+        <li><code>&lt;% ... %&gt;</code> - Interpolation (outputs result)</li>
+        <li><code>&lt;%* ... %&gt;</code> - Execution (runs code without output)</li>
+        <li><code>&lt;%- ... -%&gt;</code> - Whitespace control</li>
+    </ul>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends optional="true" config-file="markdown-extensions.xml">org.intellij.plugins.markdown</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <completion.contributor
+                language="Markdown"
+                implementationClass="ronsijm.templater.completion.TemplateCompletionContributor"/>
+        <applicationService
+                serviceImplementation="ronsijm.templater.settings.TemplaterSettings"/>
+        <applicationConfigurable
+                parentId="tools"
+                instance="ronsijm.templater.settings.TemplaterSettingsConfigurable"
+                id="ronsijm.templater.settings"
+                displayName="Templater"/>
+
+        <!-- Gutter run icon for template blocks -->
+        <codeInsight.lineMarkerProvider
+                language="Markdown"
+                implementationClass="ronsijm.templater.editor.TemplateRunLineMarkerProvider"/>
+
+        <!-- Gutter breakpoint icons for template debugging -->
+        <codeInsight.lineMarkerProvider
+                language="Markdown"
+                implementationClass="ronsijm.templater.editor.TemplateBreakpointGutterProvider"/>
+
+        <!-- Editor factory listener for breakpoint gutter clicks -->
+        <editorFactoryListener
+                implementation="ronsijm.templater.editor.BreakpointEditorFactoryListener"/>
+
+        <!-- Templater Control Flow Tool Window -->
+        <toolWindow id="Templater Control Flow"
+                    anchor="right"
+                    secondary="true"
+                    icon="AllIcons.Actions.ShowAsTree"
+                    factoryClass="ronsijm.templater.diagram.ControlFlowToolWindowFactory"/>
+
+        <!-- Templater Debugger Tool Window -->
+        <toolWindow id="Templater Debugger"
+                    anchor="bottom"
+                    secondary="false"
+                    icon="AllIcons.Actions.StartDebugger"
+                    factoryClass="ronsijm.templater.debug.TemplaterDebugToolWindowFactory"/>
+
+        <!-- Templater Variables Tool Window -->
+        <toolWindow id="Templater Variables"
+                    anchor="right"
+                    secondary="true"
+                    icon="AllIcons.Debugger.VariablesTab"
+                    factoryClass="ronsijm.templater.debug.TemplaterVariablesToolWindowFactory"/>
+
+        <!-- Debug service (project-level) -->
+        <projectService
+                serviceImplementation="ronsijm.templater.debug.TemplaterDebugService"/>
+    </extensions>
+
+    <actions>
+        <action id="Templater.ExecuteTemplate"
+                class="ronsijm.templater.actions.ExecuteTemplateAction"
+                text="Execute Template"
+                description="Execute template in current file">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <!-- Alt+R for Visual Studio keymap (Rider default) -->
+            <keyboard-shortcut keymap="Visual Studio" first-keystroke="alt R"/>
+            <!-- Alt+Shift+R for other keymaps (IntelliJ, etc.) -->
+            <keyboard-shortcut keymap="$default" first-keystroke="alt shift R"/>
+        </action>
+
+        <!-- Run button in floating toolbar when template is selected -->
+        <action id="Templater.RunSelectedTemplate"
+                class="ronsijm.templater.actions.RunSelectedTemplateAction"
+                text="Run Template"
+                description="Execute the selected template"
+                icon="AllIcons.Actions.Execute">
+            <add-to-group group-id="Markdown.Toolbar.Floating" anchor="first"/>
+        </action>
+
+        <!-- Show Control Flow action -->
+        <action id="Templater.ShowControlFlow"
+                class="ronsijm.templater.actions.ShowControlFlowAction"
+                text="Show Control Flow"
+                description="Show the control flow diagram for the current template"
+                icon="AllIcons.Actions.ShowAsTree">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+
+        <!-- Debug Template action -->
+        <action id="Templater.DebugTemplate"
+                class="ronsijm.templater.actions.DebugTemplateAction"
+                text="Debug Template"
+                description="Debug template with breakpoints and step-through execution"
+                icon="AllIcons.Actions.StartDebugger">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <!-- Alt+Shift+D for debugging -->
+            <keyboard-shortcut keymap="$default" first-keystroke="alt shift D"/>
+        </action>
+    </actions>
+</idea-plugin>

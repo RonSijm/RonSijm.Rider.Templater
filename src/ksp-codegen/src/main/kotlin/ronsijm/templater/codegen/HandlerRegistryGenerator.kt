@@ -1,4 +1,4 @@
-﻿package ronsijm.templater.codegen
+package ronsijm.templater.codegen
 
 import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.*
@@ -72,7 +72,7 @@ class HandlerRegistryGenerator(
 
         val parameters = requestClass?.let { extractParameters(it) } ?: emptyList()
 
-        // Detect if handler implements CancellableHandler interface
+
         val cancellable = classDecl.superTypes.any { superType ->
             val declaration = superType.resolve().declaration
             declaration.simpleName.asString() == "CancellableHandler"
@@ -204,7 +204,7 @@ class HandlerRegistryGenerator(
         writer.appendLine("object HandlerRegistry {")
         writer.appendLine()
 
-        // Generate registrations per module
+
         handlersByModule.forEach { (module, handlers) ->
             writer.appendLine("    val ${module}Handlers: List<HandlerRegistration<*, *>> = listOf(")
             handlers.forEachIndexed { index, info ->
@@ -217,19 +217,19 @@ class HandlerRegistryGenerator(
             writer.appendLine()
         }
 
-        // Generate commands per module
+
         handlersByModule.keys.forEach { module ->
             writer.appendLine("    val ${module}Commands: List<Command> = ${module}Handlers.map { CommandAdapter(it) }")
         }
         writer.appendLine()
 
-        // Generate command lookup maps
+
         handlersByModule.keys.forEach { module ->
             writer.appendLine("    val ${module}CommandsByName: Map<String, Command> = ${module}Commands.associateBy { it.metadata.name }")
         }
         writer.appendLine()
 
-        // Generate all modules map
+
         writer.appendLine("    val allModules: Map<String, List<Command>> = mapOf(")
         handlersByModule.keys.forEachIndexed { index, module ->
             val comma = if (index < handlersByModule.size - 1) "," else ""
@@ -238,7 +238,7 @@ class HandlerRegistryGenerator(
         writer.appendLine("    )")
         writer.appendLine()
 
-        // Generate commandsByModule map
+
         writer.appendLine("    val commandsByModule: Map<String, Map<String, Command>> = mapOf(")
         handlersByModule.keys.forEachIndexed { index, module ->
             val comma = if (index < handlersByModule.size - 1) "," else ""
@@ -247,7 +247,7 @@ class HandlerRegistryGenerator(
         writer.appendLine("    )")
         writer.appendLine()
 
-        // Generate all handlers list
+
         writer.appendLine("    val allHandlers: List<HandlerRegistration<*, *>> = listOf(")
         handlersByModule.keys.forEachIndexed { index, module ->
             val comma = if (index < handlersByModule.size - 1) "," else ""
@@ -256,12 +256,12 @@ class HandlerRegistryGenerator(
         writer.appendLine("    ).flatten()")
         writer.appendLine()
 
-        // Generate executeCommand function
-        writer.appendLine("    fun executeCommand(module: String, function: String, args: List<Any?>, context: ronsijm.templater.parser.TemplateContext): ronsijm.templater.handlers.CommandResult {")
+
+        writer.appendLine("    fun executeCommand(module: String, function: String, args: List<Any?>, context: ronsijm.templater.parser.TemplateContext): ronsijm.templater.common.CommandResult {")
         writer.appendLine("        val moduleCommands = commandsByModule[module]")
-        writer.appendLine("            ?: return ronsijm.templater.handlers.ErrorResult(\"Unknown module: \$module\")")
+        writer.appendLine("            ?: return ronsijm.templater.common.ErrorResult(\"Unknown module: \$module\")")
         writer.appendLine("        val command = moduleCommands[function]")
-        writer.appendLine("            ?: return ronsijm.templater.handlers.ErrorResult(\"Unknown function: \$module.\$function\")")
+        writer.appendLine("            ?: return ronsijm.templater.common.ErrorResult(\"Unknown function: \$module.\$function\")")
         writer.appendLine("        return command.execute(args, context)")
         writer.appendLine("    }")
         writer.appendLine("}")

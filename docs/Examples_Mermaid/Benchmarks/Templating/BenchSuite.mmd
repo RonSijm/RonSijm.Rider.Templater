@@ -1,0 +1,104 @@
+flowchart TD
+%% BenchSuite
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1["const now = () =&gt; (typeof performance..."]
+class n1 execution
+n2["// hi-res if available :contentRefere..."]
+class n2 variable
+n3["const RUNS = 20000"]
+class n3 variable
+n4["// increase until timings stabilize, ..."]
+class n4 execution
+n5["const ITEMS = 2000"]
+class n5 variable
+n6["// list size for loop benchmark"]
+class n6 execution
+n7["const STR_LEN = 64"]
+class n7 variable
+n8["// string size for escape benchmark"]
+class n8 execution
+n9["const pad = (s, n) =&gt; (s + ' '.repeat..."]
+class n9 execution
+n10["const fmt = (n) =&gt; n.toFixed(3)"]
+class n10 execution
+n11[/"function bench(name, iters, fn)"/]
+class n11 funcDecl
+n21[/"function makeWord(i)"/]
+class n21 funcDecl
+n23["// 1) Interpolation-like string build..."]
+class n23 funcCall
+n24(["End"])
+class n24 startEnd
+
+%% Function subgraphs
+subgraph scope0["bench()"]
+    direction TB
+    n12["const t0 = now()"]
+    class n12 variable
+    n13["let sink = 0"]
+    class n13 variable
+    n14{{"for (for (let i = 0; i &lt; iters; i++))"}}
+    class n14 loop
+    n15(["next iteration"])
+    class n15 loopEnd
+    n16["sink ^= fn(i) | 0"]
+    class n16 funcCall
+    n17["loop done"]
+    class n17 execution
+    n18["const t1 = now()"]
+    class n18 variable
+    n19["const ms = t1 - t0"]
+    class n19 variable
+    n20>"return { name, iters, ms, nsPer: (ms ..."]
+    class n20 returnNode
+end
+
+subgraph scope1["makeWord()"]
+    direction TB
+    n22>"return ('w' + i.toString(36)).padEnd(..."]
+    class n22 returnNode
+end
+
+%% Control flow
+n0 --> n1
+n1 --> n2
+n2 --> n3
+n3 --> n4
+n4 --> n5
+n5 --> n6
+n6 --> n7
+n7 --> n8
+n8 --> n9
+n9 --> n10
+n10 --> n11
+n11 --> n12
+n12 --> n13
+n13 --> n14
+n14 -->|yes| n16
+n16 --> n15
+n15 -.->|repeat| n14
+n14 -->|done| n17
+n17 --> n18
+n18 --> n19
+n19 --> n20
+n11 --> n21
+n21 --> n22
+n21 --> n23
+n23 --> n24

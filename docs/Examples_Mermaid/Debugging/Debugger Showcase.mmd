@@ -1,0 +1,167 @@
+flowchart TD
+%% Debugger Showcase
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1[["fork (2 parallel)"]]
+class n1 fork
+n2[["join"]]
+class n2 join
+n3["// Set a breakpoint here to see varia..."]
+class n3 execution
+n4["tR"]
+class n4 interpolation
+n5[["fork (2 parallel)"]]
+class n5 fork
+n6[["join"]]
+class n6 join
+n7["// Set a breakpoint inside the loop t..."]
+class n7 execution
+n8["tR"]
+class n8 interpolation
+n9[["fork (2 parallel)"]]
+class n9 fork
+n10[["join"]]
+class n10 join
+n11["// Step through to see which branch i..."]
+class n11 execution
+n12["tR"]
+class n12 interpolation
+n13[["fork (2 parallel)"]]
+class n13 fork
+n14[["join"]]
+class n14 join
+n15["// This demonstrates stepping INTO fu..."]
+class n15 execution
+n16["tR"]
+class n16 interpolation
+n17[["fork (2 parallel)"]]
+class n17 fork
+n18[["join"]]
+class n18 join
+n19["// Great for testing step-over vs ste..."]
+class n19 execution
+n20["tR"]
+class n20 interpolation
+n21[["fork (2 parallel)"]]
+class n21 fork
+n22[["join"]]
+class n22 join
+n23["// Uncomment the line below to test d..."]
+class n23 execution
+n24["tR"]
+class n24 interpolation
+n25(["End"])
+class n25 startEnd
+
+%% Control flow
+n0 --> n1
+n1 ==> n3
+n3 --> n2
+n1 ==> n4
+n4 --> n2
+n2 --> n5
+n5 ==> n7
+n7 --> n6
+n5 ==> n8
+n8 --> n6
+n6 --> n9
+n9 ==> n11
+n11 --> n10
+n9 ==> n12
+n12 --> n10
+n10 --> n13
+n13 ==> n15
+n15 --> n14
+n13 ==> n16
+n16 --> n14
+n14 --> n17
+n17 ==> n19
+n19 --> n18
+n17 ==> n20
+n20 --> n18
+n18 --> n21
+n21 ==> n23
+n23 --> n22
+n21 ==> n24
+n24 --> n22
+n22 --> n25
+
+%% ========================================
+%% PARALLEL EXECUTION ANALYSIS
+%% ========================================
+%%
+%% Parallel Group 1 (n1):
+%% 2 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: userName, projectName, counter. Variables read (from previous groups): Set, a, breakpoint, here, to, see, variables, being, created, Developer, Templater, Step, through, watch, change, Hello, Welcome, n, Counter, value
+%%
+%% Blocks in this group:
+%%   - // Set a breakpoint here to see varia...
+%%     reads: Set, a, breakpoint, here, to, see, variables, being, created, Developer, Templater, Step, through, watch, change, Hello, Welcome, n, Counter, value
+%%     writes: userName, projectName, counter
+%%   - tR
+%%     (no variable dependencies)
+%%
+%% Parallel Group 2 (n5):
+%% 2 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: fruits, i, fruit. Variables read (from previous groups): Set, a, breakpoint, inside, the, loop, to, step, through, each, iteration, Apple, Orange, Lemon, Grape, Strawberry, Shopping, List, n, length, Breakpoint, here, watch, and, change
+%%
+%% Blocks in this group:
+%%   - // Set a breakpoint inside the loop t...
+%%     reads: Set, a, breakpoint, inside, the, loop, to, step, through, each, iteration, Apple, Orange, Lemon, Grape, Strawberry, Shopping, List, n, length, Breakpoint, here, watch, and, change
+%%     writes: fruits, i, fruit
+%%   - tR
+%%     (no variable dependencies)
+%%
+%% Parallel Group 3 (n9):
+%% 2 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: hour, greeting, emoji. Variables read (from previous groups): Step, through, to, see, which, branch, is, taken, Date, getHours, Night, owl, Working, late, Morning, Good, morning, Afternoon, afternoon, Evening, evening, Current, n
+%%
+%% Blocks in this group:
+%%   - // Step through to see which branch i...
+%%     reads: Step, through, to, see, which, branch, is, taken, Date, getHours, Night, owl, Working, late, Morning, Good, morning, Afternoon, afternoon, Evening, evening, Current, n
+%%     writes: hour, greeting, emoji
+%%   - tR
+%%     (no variable dependencies)
+%%
+%% Parallel Group 4 (n13):
+%% 2 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: total, numbers, sum, average. Variables read (from previous groups): This, demonstrates, stepping, INTO, functions, calculateSum, Set, breakpoint, here, to, debug, inside, the, num, formatResult, label, value, Another, step, into, length, Numbers, join, n, Sum, Average
+%%
+%% Blocks in this group:
+%%   - // This demonstrates stepping INTO fu...
+%%     reads: This, demonstrates, stepping, INTO, functions, calculateSum, Set, breakpoint, here, to, debug, inside, the, num, formatResult, label, value, Another, step, into, length, Numbers, join, n, Sum, Average
+%%     writes: total, numbers, sum, average
+%%   - tR
+%%     (no variable dependencies)
+%%
+%% Parallel Group 5 (n17):
+%% 2 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: grid, r, c. Variables read (from previous groups): Great, testing, step, over, vs, into, createGrid, rows, cols, Innermost, point, lots, iterations, n, Checkerboard, Pattern
+%%
+%% Blocks in this group:
+%%   - // Great for testing step-over vs ste...
+%%     reads: Great, testing, step, over, vs, into, createGrid, rows, cols, Innermost, point, lots, iterations, n, Checkerboard, Pattern
+%%     writes: grid, r, c
+%%   - tR
+%%     (no variable dependencies)
+%%
+%% Parallel Group 6 (n21):
+%% 2 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: willFail. Variables read (from previous groups): Uncomment, the, line, below, to, test, debugger, behavior, on, errors, undefinedVariable, property, safeDivide, a, b, Cannot, divide, by, zero, n
+%%
+%% Blocks in this group:
+%%   - // Uncomment the line below to test d...
+%%     reads: Uncomment, the, line, below, to, test, debugger, behavior, on, errors, undefinedVariable, property, safeDivide, a, b, Cannot, divide, by, zero, n
+%%     writes: willFail
+%%   - tR
+%%     (no variable dependencies)

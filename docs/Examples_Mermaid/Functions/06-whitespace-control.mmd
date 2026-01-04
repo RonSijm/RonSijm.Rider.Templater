@@ -1,0 +1,106 @@
+flowchart TD
+%% 06-whitespace-control
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1[["fork (10 parallel)"]]
+class n1 fork
+n2[["join"]]
+class n2 join
+n3["` and `"]
+class n3 interpolation
+n4["tp.frontmatter.author"]
+class n4 interpolation
+n5["`)  Before &lt;%- tp.frontmatter.author"]
+class n5 interpolation
+n6["tp.frontmatter.author"]
+class n6 interpolation
+n7["tp.frontmatter.author"]
+class n7 interpolation
+n8["tp.frontmatter.author"]
+class n8 interpolation
+n9["const x = 1;"]
+class n9 execution
+n10["- const y = 2;"]
+class n10 execution
+n11["const items = ['Apple', 'Banana', 'Ch..."]
+class n11 execution
+n12["tR"]
+class n12 interpolation
+n13(["End"])
+class n13 startEnd
+
+%% Control flow
+n0 --> n1
+n1 ==> n3
+n3 --> n2
+n1 ==> n4
+n4 --> n2
+n1 ==> n5
+n5 --> n2
+n1 ==> n6
+n6 --> n2
+n1 ==> n7
+n7 --> n2
+n1 ==> n8
+n8 --> n2
+n1 ==> n9
+n9 --> n2
+n1 ==> n10
+n10 --> n2
+n1 ==> n11
+n11 --> n2
+n1 ==> n12
+n12 --> n2
+n2 --> n13
+
+%% ========================================
+%% PARALLEL EXECUTION ANALYSIS
+%% ========================================
+%%
+%% Parallel Group 1 (n1):
+%% 10 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: x, y, items. Variables read (from previous groups): ` and `, `)
+
+Before
+<%- tp.frontmatter.author, Apple, Banana, Cherry, item, n
+%%
+%% Blocks in this group:
+%%   - ` and `
+%%     reads: ` and `
+%%   - tp.frontmatter.author
+%%     (no variable dependencies)
+%%   - `)  Before <%- tp.frontmatter.author
+%%     reads: `)
+
+Before
+<%- tp.frontmatter.author
+%%   - tp.frontmatter.author
+%%     (no variable dependencies)
+%%   - tp.frontmatter.author
+%%     (no variable dependencies)
+%%   - tp.frontmatter.author
+%%     (no variable dependencies)
+%%   - const x = 1;
+%%     writes: x
+%%   - - const y = 2;
+%%     writes: y
+%%   - const items = ["Apple", "Banana", "Ch...
+%%     reads: Apple, Banana, Cherry, item, n
+%%     writes: items
+%%   - tR
+%%     (no variable dependencies)

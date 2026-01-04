@@ -1,0 +1,106 @@
+flowchart TD
+%% 08-complete-example
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1[["fork (11 parallel)"]]
+class n1 fork
+n2[["join"]]
+class n2 join
+n3["tp.frontmatter.title"]
+class n3 interpolation
+n4["tp.date.now('MMMM dd, yyyy')"]
+class n4 interpolation
+n5["tp.date.now('HH:mm')"]
+class n5 interpolation
+n6["tp.frontmatter.project"]
+class n6 interpolation
+n7["tp.frontmatter.attendees"]
+class n7 interpolation
+n8["// Generate action item template for ..."]
+class n8 execution
+n9["tR"]
+class n9 interpolation
+n10["tp.date.weekday('MMMM dd, yyyy', 7)"]
+class n10 interpolation
+n11["tp.date.tomorrow('yyyy-MM-dd')"]
+class n11 interpolation
+n12["tp.system.prompt('Your name?', 'Anony..."]
+class n12 interpolation
+n13["tp.frontmatter.status"]
+class n13 interpolation
+n14(["End"])
+class n14 startEnd
+
+%% Control flow
+n0 --> n1
+n1 ==> n3
+n3 --> n2
+n1 ==> n4
+n4 --> n2
+n1 ==> n5
+n5 --> n2
+n1 ==> n6
+n6 --> n2
+n1 ==> n7
+n7 --> n2
+n1 ==> n8
+n8 --> n2
+n1 ==> n9
+n9 --> n2
+n1 ==> n10
+n10 --> n2
+n1 ==> n11
+n11 --> n2
+n1 ==> n12
+n12 --> n2
+n1 ==> n13
+n13 --> n2
+n2 --> n14
+
+%% ========================================
+%% PARALLEL EXECUTION ANALYSIS
+%% ========================================
+%%
+%% Parallel Group 1 (n1):
+%% 11 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: i. Variables read (from previous groups): Generate, action, item, template, Action, n
+%%
+%% Blocks in this group:
+%%   - tp.frontmatter.title
+%%     (no variable dependencies)
+%%   - tp.date.now("MMMM dd, yyyy")
+%%     (no variable dependencies)
+%%   - tp.date.now("HH:mm")
+%%     (no variable dependencies)
+%%   - tp.frontmatter.project
+%%     (no variable dependencies)
+%%   - tp.frontmatter.attendees
+%%     (no variable dependencies)
+%%   - // Generate action item template for ...
+%%     reads: Generate, action, item, template, Action, n
+%%     writes: i
+%%   - tR
+%%     (no variable dependencies)
+%%   - tp.date.weekday("MMMM dd, yyyy", 7)
+%%     (no variable dependencies)
+%%   - tp.date.tomorrow("yyyy-MM-dd")
+%%     (no variable dependencies)
+%%   - tp.system.prompt("Your name?", "Anony...
+%%     (no variable dependencies)
+%%   - tp.frontmatter.status
+%%     (no variable dependencies)

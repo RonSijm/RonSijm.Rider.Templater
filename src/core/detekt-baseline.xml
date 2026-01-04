@@ -1,0 +1,252 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:ArithmeticEvaluator.kt$ArithmeticEvaluator$(char == '=' || char == '!') &amp;&amp; nextChar == '=' &amp;&amp; nextNextChar == '='</ID>
+    <ID>ComplexCondition:ArithmeticEvaluator.kt$ArithmeticEvaluator$(trimmed.startsWith("\"") &amp;&amp; trimmed.endsWith("\"")) || (trimmed.startsWith("'") &amp;&amp; trimmed.endsWith("'"))</ID>
+    <ID>ComplexCondition:ArithmeticEvaluator.kt$ArithmeticEvaluator$char == '>' &amp;&amp; i + 1 &lt; expression.length &amp;&amp; expression[i + 1] == '>' &amp;&amp; (i + 2 >= expression.length || expression[i + 2] != '>')</ID>
+    <ID>ComplexCondition:ArithmeticEvaluator.kt$ArithmeticEvaluator$char == '>' &amp;&amp; i + 2 &lt; expression.length &amp;&amp; expression[i + 1] == '>' &amp;&amp; expression[i + 2] == '>'</ID>
+    <ID>ComplexCondition:ArithmeticEvaluator.kt$ArithmeticEvaluator$char == '>' &amp;&amp; nextChar != '=' &amp;&amp; nextChar != '>' &amp;&amp; prevChar != '>'</ID>
+    <ID>ComplexCondition:ArithmeticEvaluator.kt$ArithmeticEvaluator$leftNum is Int &amp;&amp; rightNum is Int &amp;&amp; rightNum != 0 &amp;&amp; leftNum % rightNum == 0</ID>
+    <ID>ComplexCondition:AssignmentExecutor.kt$AssignmentExecutor$prevChar != '!' &amp;&amp; prevChar != '>' &amp;&amp; prevChar != '&lt;' &amp;&amp; prevChar != '=' &amp;&amp; nextChar != '=' &amp;&amp; nextChar != '>'</ID>
+    <ID>ComplexCondition:BraceMatchingUtils.kt$BraceMatchingUtils$!inString &amp;&amp; (char == '"' || char == '\'' || char == '`')</ID>
+    <ID>ComplexCondition:BytecodeEvaluationHelper.kt$BytecodeEvaluationHelper$expression.contains("new ") || expression.contains("typeof ") || expression.contains("=>") || expression.contains("instanceof")</ID>
+    <ID>ComplexCondition:BytecodeVM.kt$BytecodeVM$(a == null &amp;&amp; b == Unit) || (a == Unit &amp;&amp; b == null)</ID>
+    <ID>ComplexCondition:BytecodeVM.kt$BytecodeVM$a is Int &amp;&amp; b is Int &amp;&amp; b != 0 &amp;&amp; a % b == 0</ID>
+    <ID>ComplexCondition:FunctionCallExecutor.kt$FunctionCallExecutor$(varName.startsWith("\"") &amp;&amp; varName.endsWith("\"")) || (varName.startsWith("'") &amp;&amp; varName.endsWith("'"))</ID>
+    <ID>ComplexCondition:FunctionCallExecutor.kt$FunctionCallExecutor$body.contains("tR") || body.contains("console.") || body.contains("let ") || body.contains("const ") || body.contains("var ")</ID>
+    <ID>ComplexCondition:LiteralParser.kt$LiteralParser$(key.startsWith("\"") &amp;&amp; key.endsWith("\"")) || (key.startsWith("'") &amp;&amp; key.endsWith("'"))</ID>
+    <ID>ComplexCondition:ScriptEvaluator.kt$ScriptEvaluator$firstChar.isDigit() || (firstChar == '-' &amp;&amp; cleanExpr.length > 1 &amp;&amp; cleanExpr[1].isDigit())</ID>
+    <ID>ComplexCondition:ScriptExecutor.kt$ScriptExecutor$stmt.contains("+=") || stmt.contains("-=") || stmt.contains("*=") || stmt.contains("/=")</ID>
+    <ID>ComplexCondition:ScriptParser.kt$ScriptParser$!inString &amp;&amp; braceDepth == 0 &amp;&amp; parenDepth == 0 &amp;&amp; (char == ';' || char == '\n')</ID>
+    <ID>ComplexCondition:ScriptParser.kt$ScriptParser$(char == '"' || char == '\'' || char == '`') &amp;&amp; !BraceMatchingUtils.isQuoteEscaped(code, i)</ID>
+    <ID>ComplexCondition:TernaryOperatorEvaluator.kt$TernaryOperatorEvaluator$(char == '"' || char == '\'' || char == '`') &amp;&amp; !isQuoteEscaped(expression, i)</ID>
+    <ID>ComplexCondition:Tokenizer.kt$Tokenizer$pos &lt; length &amp;&amp; (source[pos].isLetterOrDigit() || source[pos] == '_' || source[pos] == '$')</ID>
+    <ID>ComplexCondition:TypeofOperatorEvaluator.kt$TypeofOperatorEvaluator$!scriptContext.hasVariable(varName) &amp;&amp; varName != "true" &amp;&amp; varName != "false" &amp;&amp; varName != "null"</ID>
+    <ID>ConstructorParameterNaming:CommandResult.kt$OkValueResult$private val _value: T</ID>
+    <ID>EmptyCatchBlock:HooksModule.kt$HooksModule${ }</ID>
+    <ID>EmptyCatchBlock:MermaidExportExamplesTest.kt$MermaidExportExamplesTest${ }</ID>
+    <ID>EmptyCatchBlock:SystemClipboardService.kt$SystemClipboardService${ }</ID>
+    <ID>EmptyClassBlock:ScriptExecutionCallback.kt$NoOpExecutionCallback${ }</ID>
+    <ID>LargeClass:DebuggingTemplateParserIntegrationTest.kt$DebuggingTemplateParserIntegrationTest</ID>
+    <ID>LargeClass:ScriptEvaluatorTest.kt$ScriptEvaluatorTest</ID>
+    <ID>LoopWithTooManyJumpStatements:ArithmeticEvaluator.kt$ArithmeticEvaluator$while</ID>
+    <ID>LoopWithTooManyJumpStatements:BytecodeBuilder.kt$BytecodeBuilder$while</ID>
+    <ID>LoopWithTooManyJumpStatements:BytecodeVM.kt$BytecodeVM$while</ID>
+    <ID>LoopWithTooManyJumpStatements:IfStatementParser.kt$IfStatementParser$while</ID>
+    <ID>LoopWithTooManyJumpStatements:ScriptExecutor.kt$ScriptExecutor$while</ID>
+    <ID>LoopWithTooManyJumpStatements:TryCatchParser.kt$TryCatchParser$while</ID>
+    <ID>MaxLineLength:ArithmeticEvaluatorProfiler.kt$ArithmeticEvaluatorProfiler$sb.appendLine("recursiveLeftEval: ${recursiveLeftEvalTime / 1_000_000}ms (${recursiveLeftEvalCount} calls, ${if (recursiveLeftEvalCount > 0) recursiveLeftEvalTime / recursiveLeftEvalCount / 1000 else 0}�s/call)")</ID>
+    <ID>MaxLineLength:ArithmeticEvaluatorProfiler.kt$ArithmeticEvaluatorProfiler$sb.appendLine("recursiveRightEval: ${recursiveRightEvalTime / 1_000_000}ms (${recursiveRightEvalCount} calls, ${if (recursiveRightEvalCount > 0) recursiveRightEvalTime / recursiveRightEvalCount / 1000 else 0}�s/call)")</ID>
+    <ID>MaxLineLength:BytecodeVMProfiler.kt$BytecodeVMProfiler$sb.appendLine("GET_INDEX: ${getIndexTime / 1_000_000}ms (${getIndexCount} ops, ${if (getIndexCount > 0) getIndexTime / getIndexCount / 1000 else 0}�s/op)")</ID>
+    <ID>MaxLineLength:BytecodeVMProfiler.kt$BytecodeVMProfiler$sb.appendLine("LOAD_VAR: ${loadVarTime / 1_000_000}ms (${loadVarCount} ops, ${if (loadVarCount > 0) loadVarTime / loadVarCount / 1000 else 0}�s/op)")</ID>
+    <ID>MaxLineLength:BytecodeVMProfiler.kt$BytecodeVMProfiler$sb.appendLine("PUSH_CONST: ${pushConstTime / 1_000_000}ms (${pushConstCount} ops, ${if (pushConstCount > 0) pushConstTime / pushConstCount / 1000 else 0}�s/op)")</ID>
+    <ID>MaxLineLength:DebuggingTemplateParserIntegrationTest.kt$DebuggingTemplateParserIntegrationTest$println("PAUSE #$pauseCount: line ${breakpoint.step.displayLineNumber}, type ${breakpoint.step.type}, desc='${breakpoint.step.description}'")</ID>
+    <ID>MaxLineLength:ExecutionTraceTest.kt$ExecutionTraceTest$val node1 = ronsijm.templater.ast.StatementNode(id = "node_1", type = ronsijm.templater.ast.StatementType.VARIABLE_DECLARATION, code = "Statement 1", lineNumber = 1)</ID>
+    <ID>MaxLineLength:ExecutionTraceTest.kt$ExecutionTraceTest$val node1 = ronsijm.templater.ast.StatementNode(id = "node_1", type = ronsijm.templater.ast.StatementType.VARIABLE_DECLARATION, code = "Statement", lineNumber = 1)</ID>
+    <ID>MaxLineLength:ExecutionTraceTest.kt$ExecutionTraceTest$val node1 = ronsijm.templater.ast.StatementNode(id = "node_1", type = ronsijm.templater.ast.StatementType.VARIABLE_DECLARATION, code = "Step 1", lineNumber = 1)</ID>
+    <ID>MaxLineLength:ExecutionTraceTest.kt$ExecutionTraceTest$val node10 = ronsijm.templater.ast.StatementNode(id = "node_10", type = ronsijm.templater.ast.StatementType.VARIABLE_DECLARATION, code = "Statement 10", lineNumber = 10)</ID>
+    <ID>MaxLineLength:ExecutionTraceTest.kt$ExecutionTraceTest$val node10 = ronsijm.templater.ast.StatementNode(id = "node_10", type = ronsijm.templater.ast.StatementType.VARIABLE_DECLARATION, code = "Statement 5", lineNumber = 10)</ID>
+    <ID>MaxLineLength:ExecutionTraceTest.kt$ExecutionTraceTest$val node2 = ronsijm.templater.ast.StatementNode(id = "node_2", type = ronsijm.templater.ast.StatementType.VARIABLE_DECLARATION, code = "Step 2", lineNumber = 2)</ID>
+    <ID>MaxLineLength:ExecutionTraceTest.kt$ExecutionTraceTest$val node3 = ronsijm.templater.ast.StatementNode(id = "node_3", type = ronsijm.templater.ast.StatementType.VARIABLE_DECLARATION, code = "Statement 2", lineNumber = 3)</ID>
+    <ID>MaxLineLength:ExecutionTraceTest.kt$ExecutionTraceTest$val node3 = ronsijm.templater.ast.StatementNode(id = "node_3", type = ronsijm.templater.ast.StatementType.VARIABLE_DECLARATION, code = "Step 3", lineNumber = 3)</ID>
+    <ID>MaxLineLength:ExecutionTraceTest.kt$ExecutionTraceTest$val node4 = ronsijm.templater.ast.StatementNode(id = "node_4", type = ronsijm.templater.ast.StatementType.VARIABLE_DECLARATION, code = "Step 4", lineNumber = 4)</ID>
+    <ID>MaxLineLength:ExecutionTraceTest.kt$ExecutionTraceTest$val node5 = ronsijm.templater.ast.StatementNode(id = "node_5", type = ronsijm.templater.ast.StatementType.VARIABLE_DECLARATION, code = "Statement 2", lineNumber = 5)</ID>
+    <ID>MaxLineLength:ExecutionTraceTest.kt$ExecutionTraceTest$val node5 = ronsijm.templater.ast.StatementNode(id = "node_5", type = ronsijm.templater.ast.StatementType.VARIABLE_DECLARATION, code = "Statement 3", lineNumber = 5)</ID>
+    <ID>MaxLineLength:ExecutionTraceTest.kt$ExecutionTraceTest$val node5 = ronsijm.templater.ast.StatementNode(id = "node_5", type = ronsijm.templater.ast.StatementType.VARIABLE_DECLARATION, code = "Statement 5", lineNumber = 5)</ID>
+    <ID>MaxLineLength:ExecutionTraceTest.kt$ExecutionTraceTest$val node7 = ronsijm.templater.ast.StatementNode(id = "node_7", type = ronsijm.templater.ast.StatementType.VARIABLE_DECLARATION, code = "Statement 4", lineNumber = 7)</ID>
+    <ID>MaxLineLength:FilePathValidator.kt$FilePathValidator$return ValidationResult.invalid("Path segment '$segment' contains invalid characters: ${invalidChars.toSet().joinToString(", ") { "'$it'" }}")</ID>
+    <ID>MaxLineLength:ProgressReporter.kt$ConsoleProgressReporter$println("[${progress.status}] ${progress.currentPhase}: ${progress.completedItems}/${progress.totalItems} (${progress.percentComplete.toInt()}%)")</ID>
+    <ID>MaxLineLength:ScriptEvaluatorProfiler.kt$ScriptEvaluatorProfiler$sb.appendLine("arrayAccess: ${arrayAccessTime / 1_000_000}ms (${arrayAccessCount} calls, ${if (arrayAccessCount > 0) arrayAccessTime / arrayAccessCount / 1000 else 0}�s/call)")</ID>
+    <ID>MaxLineLength:ScriptEvaluatorProfiler.kt$ScriptEvaluatorProfiler$sb.appendLine("bytecodeEval: ${bytecodeEvalTime / 1_000_000}ms (${bytecodeEvalCount} calls, ${if (bytecodeEvalCount > 0) bytecodeEvalTime / bytecodeEvalCount / 1000 else 0}�s/call)")</ID>
+    <ID>MaxLineLength:ScriptEvaluatorProfiler.kt$ScriptEvaluatorProfiler$sb.appendLine("evaluateArithmetic: ${evaluateArithmeticTime / 1_000_000}ms (${evaluateArithmeticCount} calls, ${if (evaluateArithmeticCount > 0) evaluateArithmeticTime / evaluateArithmeticCount / 1000 else 0}�s/call)")</ID>
+    <ID>MaxLineLength:ScriptEvaluatorProfiler.kt$ScriptEvaluatorProfiler$sb.appendLine("evaluateComparison: ${evaluateComparisonTime / 1_000_000}ms (${evaluateComparisonCount} calls, ${if (evaluateComparisonCount > 0) evaluateComparisonTime / evaluateComparisonCount / 1000 else 0}�s/call)")</ID>
+    <ID>MaxLineLength:ScriptEvaluatorProfiler.kt$ScriptEvaluatorProfiler$sb.appendLine("findArithmeticOp: ${findArithmeticOpTime / 1_000_000}ms (${findArithmeticOpCount} calls, ${if (findArithmeticOpCount > 0) findArithmeticOpTime / findArithmeticOpCount / 1000 else 0}�s/call)")</ID>
+    <ID>MaxLineLength:ScriptEvaluatorProfiler.kt$ScriptEvaluatorProfiler$sb.appendLine("findComparisonOp: ${findComparisonOpTime / 1_000_000}ms (${findComparisonOpCount} calls, ${if (findComparisonOpCount > 0) findComparisonOpTime / findComparisonOpCount / 1000 else 0}�s/call)")</ID>
+    <ID>MaxLineLength:ScriptEvaluatorProfiler.kt$ScriptEvaluatorProfiler$sb.appendLine("literalParse: ${literalParseTime / 1_000_000}ms (${literalParseCount} calls, ${if (literalParseCount > 0) literalParseTime / literalParseCount / 1000 else 0}�s/call)")</ID>
+    <ID>MaxLineLength:ScriptEvaluatorProfiler.kt$ScriptEvaluatorProfiler$sb.appendLine("recursiveEval: ${recursiveEvalTime / 1_000_000}ms (${recursiveEvalCount} calls, ${if (recursiveEvalCount > 0) recursiveEvalTime / recursiveEvalCount / 1000 else 0}�s/call)")</ID>
+    <ID>MaxLineLength:ScriptEvaluatorProfiler.kt$ScriptEvaluatorProfiler$sb.appendLine("variableLookup: ${variableLookupTime / 1_000_000}ms (${variableLookupCount} calls, ${if (variableLookupCount > 0) variableLookupTime / variableLookupCount / 1000 else 0}�s/call)")</ID>
+    <ID>MaxLineLength:TestUtils.kt$ResultAssertions$Assertions.assertTrue(errorResult.message.contains(expected), message ?: "Expected error message to contain '$expected' but was '${errorResult.message}'")</ID>
+    <ID>MaxLineLength:VariableCollector.kt$ComplexityCalculator$override fun visitConditional(expr: ConditionalExpression)</ID>
+    <ID>MaxLineLength:VariableCollector.kt$ComplexityCalculator$override fun visitTemplateLiteral(expr: TemplateLiteralExpression)</ID>
+    <ID>NestedBlockDepth:AssignmentExecutor.kt$AssignmentExecutor$fun executeCompoundAssignment(statement: String)</ID>
+    <ID>NestedBlockDepth:DependencyAnalyzer.kt$DependencyAnalyzer$fun analyze(block: TemplateBlock): BlockAnalysis</ID>
+    <ID>NestedBlockDepth:MermaidExporter.kt$MermaidExporter$fun exportFlowchart( graph: ControlFlowGraph, title: String = "Template Execution Flow", includeExplanations: Boolean = true, nodeStyles: MermaidNodeStyles? = null ): String</ID>
+    <ID>NestedBlockDepth:ParallelTemplateParser.kt$ParallelTemplateParser$private fun executeBlockImpl( block: TemplateBlock, scriptEngine: ScriptEngine, context: TemplateContext, moduleFactory: ModuleFactory, moduleExecutor: HandlerModuleExecutor ): String</ID>
+    <ID>NestedBlockDepth:ScriptEvaluator.kt$ScriptEvaluator$fun evaluateExpression(expression: String): Any?</ID>
+    <ID>NestedBlockDepth:ScriptExecutor.kt$ScriptExecutor$private fun executeIfStatementWithNodes( condition: String, thenNodes: List&lt;ronsijm.templater.ast.StatementNode>, elseBranches: List&lt;Pair&lt;String?, List&lt;ronsijm.templater.ast.StatementNode>>> = emptyList() )</ID>
+    <ID>NestedBlockDepth:ScriptLexer.kt$ScriptLexer$fun smartSplitStatements(script: String): List&lt;String></ID>
+    <ID>NestedBlockDepth:TemplateASTBuilder.kt$TemplateASTBuilder$private fun parseExecutionBlock( code: String, blockStartLine: Int, blockStartOffset: Int ): List&lt;StatementNode></ID>
+    <ID>NestedBlockDepth:TemplateParser.kt$TemplateParser$fun parse( content: String, context: TemplateContext, appModuleProvider: AppModuleProvider = NullAppModuleProvider, cancellationChecker: CancellationChecker = NoCancellationChecker, executionCallback: ScriptExecutionCallback = NoOpExecutionCallback, ast: TemplateAST? = null ): String</ID>
+    <ID>NewLineAtEndOfFile:ForLoopParser.kt$ronsijm.templater.script.parser.ForLoopParser.kt</ID>
+    <ID>NewLineAtEndOfFile:MermaidExportExamplesTest.kt$ronsijm.templater.debug.MermaidExportExamplesTest.kt</ID>
+    <ID>NewLineAtEndOfFile:ModuleRegistry.kt$ronsijm.templater.script.ModuleRegistry.kt</ID>
+    <ID>NewLineAtEndOfFile:ScriptContext.kt$ronsijm.templater.script.ScriptContext.kt</ID>
+    <ID>NewLineAtEndOfFile:ScriptEngine.kt$ronsijm.templater.script.ScriptEngine.kt</ID>
+    <ID>NewLineAtEndOfFile:ScriptParser.kt$ronsijm.templater.script.ScriptParser.kt</ID>
+    <ID>NewLineAtEndOfFile:TemplateContext.kt$ronsijm.templater.parser.TemplateContext.kt</ID>
+    <ID>NewLineAtEndOfFile:TemplateParser.kt$ronsijm.templater.parser.TemplateParser.kt</ID>
+    <ID>NewLineAtEndOfFile:ValidationError.kt$ronsijm.templater.parser.ValidationError.kt</ID>
+    <ID>SpacingBetweenPackageAndImports:ASTToControlFlowConverter.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ArithmeticEvaluator.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ArithmeticPropertyTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ArrayMethodExecutor.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ArrayPropertyTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ArrowFunctionHandler.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:AssignmentExecutor.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:AstInterpreter.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:AstScriptEngine.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:BenchmarkTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:BreakpointExploratoryTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:BreakpointIntegrationTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:BytecodeEvaluationHelper.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:BytecodeVMTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:CancelBehaviorTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:CancellableHandler.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:CancellationToken.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:CommandAdapter.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:CommandAdapterTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:CommandExecutionHelper.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:CommandExecutor.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:CommandHandler.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:CompiledExpressionEvaluator.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ComplexScenarioIntegrationTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ConditionalExecutor.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ControlFlowBuilder.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:CreationDateRequestParser.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DateHandlerTestBase.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DateHandlersTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DateMethodExecutor.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DateUtils.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DateUtilsTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DebugBreakpointTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DebugSession.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DebugSessionListenerRaceConditionTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DebugVisualizerNodeHighlightingTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DebuggerStartPositionTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DebuggingTemplateParser.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DebuggingTemplateParserIntegrationTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ErrorHandlingIntegrationTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ExecutionStep.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ExecutionTrace.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ExpressionEvaluator.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ExpressionPrinter.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ExpressionTransformer.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:FileHandlerTestBase.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:FileHandlersTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:FileOperationHandlerTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ForLoopParser.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:FrontmatterModule.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:FrontmatterParser.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:FullTemplateIntegrationTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:FunctionExecutor.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:FunctionParser.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:GlobalFunctions.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:HandlerModule.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:HandlerModuleExecutor.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:HooksModule.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:IfStatementParser.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:Logging.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:LogicalExpressionEvaluator.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:LoopExecutor.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:MathObject.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:MatrixMultiplyBenchmarkTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:MermaidExportExamplesTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:MermaidExporter.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ModuleFactory.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ModuleFactoryTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ModuleRegistry.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:NewExpressionEvaluator.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:NullAppModuleProvider.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:NullClipboardService.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:NullFileOperationService.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:NullHttpService.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:NullSystemOperationsService.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ParallelExecutor.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ParallelTemplateParser.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ParallelTemplateParserIntegrationTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ParserPropertyTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:PeepholeOptimizerTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ProgressReporter.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:PropertyAccessEvaluator.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:RegenerateMermaidDiagramsTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ScriptContext.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ScriptEngineArrayTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ScriptEngineBasicTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ScriptEngineBenchmarkTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ScriptEngineControlFlowTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ScriptEngineFunctionTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ScriptEngineLoopTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ScriptEngineOperatorTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ScriptEnginePiCalculationTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ScriptEngineTemplateLiteralTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ScriptEngineVariableUpdaterTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ScriptEvaluatorParsingTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ScriptExecutionCallback.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ServiceContainer.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:SpecializedOpcodesTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:StatementClassifier.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:StatementNode.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:StepByStepExecutionController.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:StringPropertyTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:StructuredConcurrency.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:SystemClipboardService.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:SystemHandlerTestBase.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:SystemHandlersTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TemplateASTBuilder.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TemplateBlockProcessor.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TemplateContext.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TemplateParser.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TemplateParserArgumentsTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TemplateValidator.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TemplaterSettingsTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TestUtils.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TracingTemplateParser.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TryCatchExecutor.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:TypeofOperatorEvaluator.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:VariableCollector.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:WebHandlerTestBase.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:WebHandlersTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:WhileLoopParser.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:YouTubeBatchScriptTest.kt$ </ID>
+    <ID>UnusedImports:BytecodeCompilerTest.kt$import ronsijm.templater.TestContextFactory</ID>
+    <ID>UnusedImports:BytecodeVMTest.kt$import ronsijm.templater.TestContextFactory</ID>
+    <ID>UnusedImports:CancellableHandler.kt$import ronsijm.templater.common.ErrorResult</ID>
+    <ID>UnusedImports:CancellableHandler.kt$import ronsijm.templater.common.OkValueResult</ID>
+    <ID>UnusedImports:CancellableHandler.kt$import ronsijm.templater.common.valueAs</ID>
+    <ID>UnusedImports:DebugSessionListenerRaceConditionTest.kt$import java.util.concurrent.atomic.AtomicBoolean</ID>
+    <ID>UnusedImports:DebugSessionListenerRaceConditionTest.kt$import java.util.concurrent.atomic.AtomicReference</ID>
+    <ID>UnusedImports:LoopExecutorTest.kt$import ronsijm.templater.TestContextFactory</ID>
+    <ID>UnusedImports:MatrixMultiplyBenchmarkTest.kt$import java.io.File</ID>
+    <ID>UnusedImports:ScriptEngineIfElseTest.kt$import org.junit.jupiter.api.fail</ID>
+    <ID>UnusedImports:ScriptEvaluator.kt$import ronsijm.templater.common.BuiltinObjects</ID>
+    <ID>UnusedImports:SpecializedOpcodesTest.kt$import ronsijm.templater.TestContextFactory</ID>
+    <ID>UnusedImports:SuggesterHandlerTest.kt$import ronsijm.templater.common.CancelledResult</ID>
+    <ID>UnusedImports:TemplateParser.kt$import ronsijm.templater.modules.ConfigModule</ID>
+    <ID>UnusedImports:TemplateParser.kt$import ronsijm.templater.modules.FrontmatterModule</ID>
+    <ID>UnusedImports:TemplateParser.kt$import ronsijm.templater.modules.HooksModule</ID>
+    <ID>UnusedImports:YouTubeBatchScriptTest.kt$import org.junit.jupiter.api.Disabled</ID>
+    <ID>UnusedParameter:ExpressionEvaluator.kt$ArrowFunctionValue$args: List&lt;Any?></ID>
+    <ID>UnusedParameter:ExpressionEvaluator.kt$ExpressionEvaluator$args: List&lt;Any?></ID>
+    <ID>UnusedParameter:ParallelTemplateParser.kt$ParallelTemplateParser$context: TemplateContext</ID>
+    <ID>UnusedPrivateMember:ExpressionCompiler.kt$ExpressionCompiler$private fun peek(): Token</ID>
+    <ID>UnusedPrivateProperty:ArrayFromTest.kt$ArrayFromTest$val context = TestContextFactory.create(fileContent = "test content")</ID>
+    <ID>UnusedPrivateProperty:ArrayMethodExecutorTest.kt$ArrayMethodExecutorTest$val param = arrow.parameters.firstOrNull() ?: "x"</ID>
+    <ID>UnusedPrivateProperty:BreakpointExploratoryTest.kt$BreakpointExploratoryTest$val result = parser.parse(template, context)</ID>
+    <ID>UnusedPrivateProperty:DebuggingTemplateParser.kt$DebuggingTemplateParser.&lt;no name provided>$private var currentLoopHeaderLineNumber: Int? = null</ID>
+    <ID>UnusedPrivateProperty:DebuggingTemplateParserIntegrationTest.kt$DebuggingTemplateParserIntegrationTest$val allStepsRecorded = mutableListOf&lt;Pair&lt;ExecutionStep.StepType, Int?>>()</ID>
+    <ID>UnusedPrivateProperty:DependencyAnalyzer.kt$DependencyAnalyzer$private val pureFunctions: Set&lt;String> by lazy { buildSet { HandlerRegistry.allHandlers.forEach { registration -> if (registration.metadata.pure) { add("${Prefixes.TP}${registration.metadata.module}.${registration.metadata.name}") } } add("${Prefixes.TP}${ModuleNames.FRONTMATTER}") } }</ID>
+    <ID>UnusedPrivateProperty:ExpressionCompiler.kt$ExpressionCompiler.Companion$private const val PREC_NONE = 0</ID>
+    <ID>UnusedPrivateProperty:ExpressionCompiler.kt$ExpressionCompiler.Companion$private const val PREC_PRIMARY = 15</ID>
+    <ID>UnusedPrivateProperty:HooksModule.kt$HooksModule$private val context: TemplateContext</ID>
+    <ID>UnusedPrivateProperty:ScriptEngineIfElseTest.kt$ScriptEngineIfElseTest$val result = engine.execute(script)</ID>
+    <ID>UnusedPrivateProperty:ScriptEvaluator.kt$ScriptEvaluator$private val templateLiteralEvaluator: TemplateLiteralEvaluator by lazy { TemplateLiteralEvaluator { evaluateExpression(it) } }</ID>
+    <ID>UnusedPrivateProperty:ScriptEvaluator.kt$ScriptEvaluator.Companion$private val LOG = Logging.getLogger&lt;ScriptEvaluator>()</ID>
+    <ID>UnusedPrivateProperty:ScriptEvaluatorTest.kt$ScriptEvaluatorTest$val forEachResult = ArrayMethodExecutor.execute(items, "forEach", listOf(arrowFn)) { fn, args -> evaluator.executeArrowFunction(fn, args) }</ID>
+    <ID>UnusedPrivateProperty:ScriptParser.kt$ScriptParser.Companion$private val VAR_DECL_REGEX = Regex("^(let|const|var)\\s+")</ID>
+    <ID>UnusedPrivateProperty:TemplateValidator.kt$TemplateValidator.Companion$private val LOG = Logging.getLogger&lt;TemplateValidator>()</ID>
+    <ID>UnusedPrivateProperty:TemplateValidator.kt$TemplateValidator.Companion$private val UNCLOSED_TEMPLATE = Regex("""&lt;%(?![^&lt;]*%>)""")</ID>
+    <ID>UnusedPrivateProperty:TemplateValidator.kt$TemplateValidator.Companion$private val UNOPENED_TEMPLATE = Regex("""(?&lt;!&lt;%[^>]*)%>""")</ID>
+    <ID>UnusedPrivateProperty:Tokenizer.kt$Tokenizer$val id = sourceString.substring(start, pos)</ID>
+  </CurrentIssues>
+</SmellBaseline>

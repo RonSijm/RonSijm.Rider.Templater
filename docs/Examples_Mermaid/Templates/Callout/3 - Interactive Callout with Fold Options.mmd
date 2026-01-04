@@ -1,0 +1,110 @@
+flowchart TD
+%% 3 - Interactive Callout with Fold Options
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1["const callouts = { 	// Colors: 🟥🟧🟨..."]
+class n1 variable
+n2["const typeNames = []"]
+class n2 variable
+n3["const typeLabels = []"]
+class n3 variable
+n4["Object.keys(callouts)"]
+class n4 funcCall
+n5[".sort() // Remove this line to use pr..."]
+class n5 funcCall
+n6[".forEach(key =&gt;  		typeNames.push(key..."]
+class n6 funcCall
+n7["let calloutType = await tp.system.sug..."]
+class n7 variable
+n8["// Stop here when the prompt was canc..."]
+class n8 funcCall
+n9{"if (if (!calloutType))"}
+class n9 condition
+n10["endif"]
+class n10 execution
+n11["return"]
+class n11 execution
+n12["let foldState = await tp.system.sugge..."]
+class n12 variable
+n13["let title = await tp.file.selection()"]
+class n13 variable
+n14{"if (if (!title))"}
+class n14 condition
+n15["endif"]
+class n15 execution
+n16["title = await tp.system.prompt('Title..."]
+class n16 funcCall
+n17[["fork (3 parallel)"]]
+class n17 fork
+n18[["join"]]
+class n18 join
+n19["calloutType"]
+class n19 interpolation
+n20["foldState"]
+class n20 interpolation
+n21["title"]
+class n21 interpolation
+n22["tp.file.cursor()"]
+class n22 funcCall
+n23(["End"])
+class n23 startEnd
+
+%% Control flow
+n0 --> n1
+n1 --> n2
+n2 --> n3
+n3 --> n4
+n4 --> n5
+n5 --> n6
+n6 --> n7
+n7 --> n8
+n8 --> n9
+n9 -->|yes| n11
+n11 --> n10
+n9 -->|no| n10
+n10 --> n12
+n12 --> n13
+n13 --> n14
+n14 -->|yes| n16
+n16 --> n15
+n14 -->|no| n15
+n15 --> n17
+n17 ==> n19
+n19 --> n18
+n17 ==> n20
+n20 --> n18
+n17 ==> n21
+n21 --> n18
+n18 --> n22
+n22 --> n23
+
+%% ========================================
+%% PARALLEL EXECUTION ANALYSIS
+%% ========================================
+%%
+%% Parallel Group 1 (n17):
+%% All 3 blocks only read variables (no writes) - safe to run in parallel. Variables read: calloutType, foldState, title. No blocks write to template output (tR) - order doesn't matter
+%%
+%% Blocks in this group:
+%%   - calloutType
+%%     reads: calloutType
+%%   - foldState
+%%     reads: foldState
+%%   - title
+%%     reads: title

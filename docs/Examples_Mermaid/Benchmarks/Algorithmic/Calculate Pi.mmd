@@ -1,0 +1,212 @@
+flowchart TD
+%% Calculate Pi
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1["const digitsText = 500"]
+class n1 variable
+n2{"if (if (digitsText == null))"}
+class n2 condition
+n3["endif"]
+class n3 execution
+n4["tR += 'Cancelled'"]
+class n4 variable
+n5["return"]
+class n5 execution
+n6["const digitsAfterDecimal = Math.max(1..."]
+class n6 variable
+n7["const now = () =&gt;"]
+class n7 execution
+n8["(typeof performance !== 'undefined' &..."]
+class n8 funcCall
+n9[/"function spy(totalDigits)"/]
+class n9 funcDecl
+n25[/"function cs32(s)"/]
+class n25 funcDecl
+n32["const totalDigits = digitsAfterDecima..."]
+class n32 variable
+n33["spy(30)"]
+class n33 funcCall
+n34["const runs = 3"]
+class n34 variable
+n35["const times = []"]
+class n35 variable
+n36["let lastPi = ''"]
+class n36 variable
+n37{{"for (for (let r = 0; r &lt; runs; r++))"}}
+class n37 loop
+n38(["next iteration"])
+class n38 loopEnd
+n39["const t0 = now()"]
+class n39 variable
+n40["const raw = spy(totalDigits)"]
+class n40 variable
+n41["const t1 = now()"]
+class n41 variable
+n42["lastPi = raw.startsWith('0') ? raw.sl..."]
+class n42 funcCall
+n43["times.push(t1 - t0)"]
+class n43 funcCall
+n44["loop done"]
+class n44 execution
+n45["times.sort((a, b) =&gt; a - b)"]
+class n45 funcCall
+n46["const medianMs = times[Math.floor(tim..."]
+class n46 variable
+n47["const pi = lastPi"]
+class n47 variable
+n48["const formatted = pi[0] + '.' + pi.sl..."]
+class n48 variable
+n49["const previewLen = Math.min(80, forma..."]
+class n49 variable
+n50["const preview = formatted.slice(0, pr..."]
+class n50 variable
+n51["const tail = formatted.slice(Math.max..."]
+class n51 variable
+n52["tR += `Pi benchmark\n`"]
+class n52 variable
+n53["tR += `digits_after_decimal: ${digits..."]
+class n53 variable
+n54["tR += `runs_ms: ${times.map(x =&gt; x.to..."]
+class n54 funcCall
+n55["tR += `median_ms: ${medianMs.toFixed(..."]
+class n55 funcCall
+n56["tR += `cs32: ${cs32(formatted)}\n`"]
+class n56 funcCall
+n57["tR += `preview: ${preview}\n`"]
+class n57 variable
+n58["tR += `tail: ${tail}\n`"]
+class n58 variable
+n59(["End"])
+class n59 startEnd
+
+%% Function subgraphs
+subgraph scope0["spy()"]
+    direction TB
+    n10["const len = Math.floor(totalDigits * ..."]
+    class n10 variable
+    n11["const a = new Array(len).fill(2)"]
+    class n11 variable
+    n12["let nines = 0"]
+    class n12 variable
+    n13["let predigit = 0"]
+    class n13 variable
+    n14["let out = ''"]
+    class n14 variable
+    n15{{"for (for (let j = 0; j &lt; totalDigits; j++))"}}
+    class n15 loop
+    n16(["next iteration"])
+    class n16 loopEnd
+    n17["let q = 0"]
+    class n17 variable
+    n18["for (let i = len - 1; i &gt;= 0; i--) { ..."]
+    class n18 funcCall
+    n19["a[0] = q % 10"]
+    class n19 variable
+    n20["q = Math.floor(q / 10)"]
+    class n20 funcCall
+    n21["if (q === 9) {       nines++;     } e..."]
+    class n21 funcCall
+    n22["loop done"]
+    class n22 execution
+    n23["out += String(predigit)"]
+    class n23 funcCall
+    n24>"return out"]
+    class n24 returnNode
+end
+
+subgraph scope1["cs32()"]
+    direction TB
+    n26["let h = 0"]
+    class n26 variable
+    n27{{"for (for (let i = 0; i &lt; s.length; i++))"}}
+    class n27 loop
+    n28(["next iteration"])
+    class n28 loopEnd
+    n29["h = (h * 31 + s.charCodeAt(i)) &gt;&gt;&gt; 0"]
+    class n29 funcCall
+    n30["loop done"]
+    class n30 execution
+    n31>"return h &gt;&gt;&gt; 0"]
+    class n31 returnNode
+end
+
+%% Control flow
+n0 --> n1
+n1 --> n2
+n2 -->|yes| n4
+n4 --> n5
+n5 --> n3
+n2 -->|no| n3
+n3 --> n6
+n6 --> n7
+n7 --> n8
+n8 --> n9
+n9 --> n10
+n10 --> n11
+n11 --> n12
+n12 --> n13
+n13 --> n14
+n14 --> n15
+n15 -->|yes| n17
+n17 --> n18
+n18 --> n19
+n19 --> n20
+n20 --> n21
+n21 --> n16
+n16 -.->|repeat| n15
+n15 -->|done| n22
+n22 --> n23
+n23 --> n24
+n9 --> n25
+n25 --> n26
+n26 --> n27
+n27 -->|yes| n29
+n29 --> n28
+n28 -.->|repeat| n27
+n27 -->|done| n30
+n30 --> n31
+n25 --> n32
+n32 --> n33
+n33 --> n34
+n34 --> n35
+n35 --> n36
+n36 --> n37
+n37 -->|yes| n39
+n39 --> n40
+n40 --> n41
+n41 --> n42
+n42 --> n43
+n43 --> n38
+n38 -.->|repeat| n37
+n37 -->|done| n44
+n44 --> n45
+n45 --> n46
+n46 --> n47
+n47 --> n48
+n48 --> n49
+n49 --> n50
+n50 --> n51
+n51 --> n52
+n52 --> n53
+n53 --> n54
+n54 --> n55
+n55 --> n56
+n56 --> n57
+n57 --> n58
+n58 --> n59

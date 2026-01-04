@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>EmptyCatchBlock:ControlFlowPanelTest.kt$ControlFlowPanelTest.Companion${ }</ID>
+    <ID>EmptyCatchBlock:EditorPanel.kt$EditorPanel${ }</ID>
+    <ID>EmptyCatchBlock:EditorPanel.kt$EditorPanel.&lt;no name provided>${ }</ID>
+    <ID>EmptyCatchBlock:FlatLafThemeColorsTest.kt$FlatLafThemeColorsTest${ }</ID>
+    <ID>EmptyCatchBlock:FlatLafThemeColorsTest.kt$FlatLafThemeColorsTest.Companion${ }</ID>
+    <ID>EmptyCatchBlock:GutterRunIconManager.kt$GutterRunIconManager${ }</ID>
+    <ID>EmptyCatchBlock:LayoutPersistenceService.kt$LayoutPersistenceService${ }</ID>
+    <ID>MaxLineLength:DebuggerShowcaseIntegrationTest.kt$DebuggerShowcaseIntegrationTest$"Should pause exactly 2 times (once at line 23, once at line 24), but paused ${pausedEvents.size} times at lines: ${pausedEvents.map { it.lineNumber }}"</ID>
+    <ID>SpacingBetweenPackageAndImports:BreakpointVisualTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DebuggerShowcaseIntegrationTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DockingIntegrationTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:DockingLayoutTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:EditorPanelBreakpointTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:EditorPanelScrollTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:FileAssociationServiceTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:HeadlessExecutionTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:MainWindowIntegrationTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:ModernDockingTest.kt$ </ID>
+    <ID>SpacingBetweenPackageAndImports:SwingSystemOperationsServiceTest.kt$ </ID>
+    <ID>UnusedImports:AppSettings.kt$import ronsijm.templater.settings.MermaidNodeStyle</ID>
+    <ID>UnusedImports:BackgroundTask.kt$import javax.swing.SwingUtilities</ID>
+    <ID>UnusedImports:DetachablePanel.kt$import java.awt.Component</ID>
+    <ID>UnusedImports:DockingIntegrationTest.kt$import ModernDocking.DockingRegion</ID>
+    <ID>UnusedImports:DockingLayoutTest.kt$import ModernDocking.DockingRegion</ID>
+    <ID>UnusedImports:FileTreePanel.kt$import javax.swing.tree.ExpandVetoException</ID>
+    <ID>UnusedImports:FlatLafThemeColorsTest.kt$import javax.swing.UIManager</ID>
+    <ID>UnusedImports:GutterRunIconManager.kt$import java.awt.Graphics2D</ID>
+    <ID>UnusedImports:GutterRunIconManager.kt$import org.fife.ui.rtextarea.Gutter</ID>
+    <ID>UnusedImports:MainWindow.kt$import ronsijm.templater.standalone.ui.dialog.TemplateResultDialog</ID>
+    <ID>UnusedImports:ModernDockingTest.kt$import ModernDocking.Dockable</ID>
+    <ID>UnusedImports:ModernDockingTest.kt$import ModernDocking.DockingRegion</ID>
+    <ID>UnusedImports:ModernDockingTest.kt$import javax.swing.JLabel</ID>
+    <ID>UnusedImports:ModernDockingTest.kt$import javax.swing.JPanel</ID>
+    <ID>UnusedImports:StandaloneDebugSession.kt$import ronsijm.templater.services.ServiceContainer</ID>
+    <ID>UnusedPrivateProperty:CliAppModule.kt$CliAppModule$private val context: TemplateContext</ID>
+    <ID>UnusedPrivateProperty:DockingLayoutTest.kt$DockingLayoutTest$val timestamp = System.currentTimeMillis()</ID>
+    <ID>UnusedPrivateProperty:EditorPanelBreakpointTest.kt$EditorPanelBreakpointTest$val line3Offset = editorPanel.getText().lines().take(2).sumOf { it.length + 1 }</ID>
+    <ID>UnusedPrivateProperty:GutterRunIconManager.kt$GutterRunIconManager$var index = 0</ID>
+  </CurrentIssues>
+</SmellBaseline>

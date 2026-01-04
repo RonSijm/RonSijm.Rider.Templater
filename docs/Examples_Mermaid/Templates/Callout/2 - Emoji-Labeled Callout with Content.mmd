@@ -1,0 +1,51 @@
+flowchart TD
+%% 2 - Emoji-Labeled Callout with Content
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1[["fork (2 parallel)"]]
+class n1 fork
+n2[["join"]]
+class n2 join
+n3["// how it should be rendered"]
+class n3 execution
+n4["// how it is rendered now"]
+class n4 execution
+n5(["End"])
+class n5 startEnd
+
+%% Control flow
+n0 --> n1
+n1 ==> n3
+n3 --> n2
+n1 ==> n4
+n4 --> n2
+n2 --> n5
+
+%% ========================================
+%% PARALLEL EXECUTION ANALYSIS
+%% ========================================
+%%
+%% Parallel Group 1 (n1):
+%% All 2 blocks only read variables (no writes) - safe to run in parallel. Variables read: how, it, should, be, rendered, is, now. No blocks write to template output (tR) - order doesn't matter
+%%
+%% Blocks in this group:
+%%   - // how it should be rendered
+%%     reads: how, it, should, be, rendered
+%%   - // how it is rendered now
+%%     reads: how, it, is, rendered, now

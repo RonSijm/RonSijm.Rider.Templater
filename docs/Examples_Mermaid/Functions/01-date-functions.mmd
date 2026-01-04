@@ -1,0 +1,147 @@
+flowchart TD
+%% 01-date-functions
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1[["fork (18 parallel)"]]
+class n1 fork
+n2[["join"]]
+class n2 join
+n3["tp.date.now()"]
+class n3 interpolation
+n4["tp.date.now()"]
+class n4 interpolation
+n5["tp.date.today()"]
+class n5 interpolation
+n6["tp.date.tomorrow()"]
+class n6 interpolation
+n7["tp.date.yesterday()"]
+class n7 interpolation
+n8["tp.date.now('yyyy-MM-dd')"]
+class n8 interpolation
+n9["tp.date.now('MM/dd/yyyy')"]
+class n9 interpolation
+n10["tp.date.now('MMMM dd, yyyy')"]
+class n10 interpolation
+n11["tp.date.now('HH:mm:ss')"]
+class n11 interpolation
+n12["tp.date.now('yyyy-MM-dd HH:mm:ss')"]
+class n12 interpolation
+n13["tp.date.weekday('yyyy-MM-dd', 0)"]
+class n13 interpolation
+n14["tp.date.weekday('yyyy-MM-dd', 1)"]
+class n14 interpolation
+n15["tp.date.weekday('yyyy-MM-dd', 4)"]
+class n15 interpolation
+n16["tp.date.weekday('yyyy-MM-dd', 7)"]
+class n16 interpolation
+n17["tp.date.weekday('yyyy-MM-dd', -7)"]
+class n17 interpolation
+n18["tp.date.now('YYYY-MM-DD')"]
+class n18 interpolation
+n19["tp.date.now('dddd, MMMM Do YYYY')"]
+class n19 interpolation
+n20["tp.date.now('h:mm:ss a')"]
+class n20 interpolation
+n21(["End"])
+class n21 startEnd
+
+%% Control flow
+n0 --> n1
+n1 ==> n3
+n3 --> n2
+n1 ==> n4
+n4 --> n2
+n1 ==> n5
+n5 --> n2
+n1 ==> n6
+n6 --> n2
+n1 ==> n7
+n7 --> n2
+n1 ==> n8
+n8 --> n2
+n1 ==> n9
+n9 --> n2
+n1 ==> n10
+n10 --> n2
+n1 ==> n11
+n11 --> n2
+n1 ==> n12
+n12 --> n2
+n1 ==> n13
+n13 --> n2
+n1 ==> n14
+n14 --> n2
+n1 ==> n15
+n15 --> n2
+n1 ==> n16
+n16 --> n2
+n1 ==> n17
+n17 --> n2
+n1 ==> n18
+n18 --> n2
+n1 ==> n19
+n19 --> n2
+n1 ==> n20
+n20 --> n2
+n2 --> n21
+
+%% ========================================
+%% PARALLEL EXECUTION ANALYSIS
+%% ========================================
+%%
+%% Parallel Group 1 (n1):
+%% All 18 blocks are independent - they don't read or write any shared variables. No blocks write to template output (tR) - order doesn't matter
+%%
+%% Blocks in this group:
+%%   - tp.date.now()
+%%     (no variable dependencies)
+%%   - tp.date.now()
+%%     (no variable dependencies)
+%%   - tp.date.today()
+%%     (no variable dependencies)
+%%   - tp.date.tomorrow()
+%%     (no variable dependencies)
+%%   - tp.date.yesterday()
+%%     (no variable dependencies)
+%%   - tp.date.now("yyyy-MM-dd")
+%%     (no variable dependencies)
+%%   - tp.date.now("MM/dd/yyyy")
+%%     (no variable dependencies)
+%%   - tp.date.now("MMMM dd, yyyy")
+%%     (no variable dependencies)
+%%   - tp.date.now("HH:mm:ss")
+%%     (no variable dependencies)
+%%   - tp.date.now("yyyy-MM-dd HH:mm:ss")
+%%     (no variable dependencies)
+%%   - tp.date.weekday("yyyy-MM-dd", 0)
+%%     (no variable dependencies)
+%%   - tp.date.weekday("yyyy-MM-dd", 1)
+%%     (no variable dependencies)
+%%   - tp.date.weekday("yyyy-MM-dd", 4)
+%%     (no variable dependencies)
+%%   - tp.date.weekday("yyyy-MM-dd", 7)
+%%     (no variable dependencies)
+%%   - tp.date.weekday("yyyy-MM-dd", -7)
+%%     (no variable dependencies)
+%%   - tp.date.now("YYYY-MM-DD")
+%%     (no variable dependencies)
+%%   - tp.date.now("dddd, MMMM Do YYYY")
+%%     (no variable dependencies)
+%%   - tp.date.now("h:mm:ss a")
+%%     (no variable dependencies)

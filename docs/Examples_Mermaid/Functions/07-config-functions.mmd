@@ -1,0 +1,63 @@
+flowchart TD
+%% 07-config-functions
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1[["fork (4 parallel)"]]
+class n1 fork
+n2[["join"]]
+class n2 join
+n3["tp.config.active_file"]
+class n3 interpolation
+n4["tp.config.run_mode"]
+class n4 interpolation
+n5["tp.config.target_file"]
+class n5 interpolation
+n6["tp.config.template_file"]
+class n6 interpolation
+n7(["End"])
+class n7 startEnd
+
+%% Control flow
+n0 --> n1
+n1 ==> n3
+n3 --> n2
+n1 ==> n4
+n4 --> n2
+n1 ==> n5
+n5 --> n2
+n1 ==> n6
+n6 --> n2
+n2 --> n7
+
+%% ========================================
+%% PARALLEL EXECUTION ANALYSIS
+%% ========================================
+%%
+%% Parallel Group 1 (n1):
+%% All 4 blocks are independent - they don't read or write any shared variables. No blocks write to template output (tR) - order doesn't matter
+%%
+%% Blocks in this group:
+%%   - tp.config.active_file
+%%     (no variable dependencies)
+%%   - tp.config.run_mode
+%%     (no variable dependencies)
+%%   - tp.config.target_file
+%%     (no variable dependencies)
+%%   - tp.config.template_file
+%%     (no variable dependencies)

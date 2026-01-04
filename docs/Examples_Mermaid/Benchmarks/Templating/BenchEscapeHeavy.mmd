@@ -1,0 +1,113 @@
+flowchart TD
+%% BenchEscapeHeavy
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1["const now = () =&gt; (typeof performance..."]
+class n1 execution
+n2["const RUNS = 20000"]
+class n2 variable
+n3["const STR_LEN = 256"]
+class n3 variable
+n4[/"function htmlEscape(s)"/]
+class n4 funcDecl
+n12["const base = ('&lt;&&gt;'\'' + ' loremIPSUM..."]
+class n12 variable
+n13["const t0 = now()"]
+class n13 variable
+n14["let bytesOut = 0"]
+class n14 variable
+n15{{"for (for (let i = 0; i &lt; RUNS; i++))"}}
+class n15 loop
+n16(["next iteration"])
+class n16 loopEnd
+n17["bytesOut += htmlEscape(base + i).length"]
+class n17 funcCall
+n18["loop done"]
+class n18 execution
+n19["const t1 = now()"]
+class n19 variable
+n20["const ms = t1 - t0"]
+class n20 variable
+n21["const mb = bytesOut / (1024 * 1024)"]
+class n21 variable
+n22["const mbps = mb / (ms / 1000)"]
+class n22 variable
+n23["tR += '# Escape-heavy benchmark\n\n'"]
+class n23 variable
+n24["tR += `Runs: ${RUNS}, StrLen: ${STR_L..."]
+class n24 variable
+n25["tR += `Time: ${ms.toFixed(3)} ms\n`"]
+class n25 funcCall
+n26["tR += `Output: ${mb.toFixed(3)} MiB\n`"]
+class n26 funcCall
+n27["tR += `Throughput: ${mbps.toFixed(3)}..."]
+class n27 funcCall
+n28(["End"])
+class n28 startEnd
+
+%% Function subgraphs
+subgraph scope0["htmlEscape()"]
+    direction TB
+    n5["let r = ''"]
+    class n5 variable
+    n6{{"for (for (let i = 0; i &lt; s.length; i++))"}}
+    class n6 loop
+    n7(["next iteration"])
+    class n7 loopEnd
+    n8["const c = s.charCodeAt(i)"]
+    class n8 variable
+    n9["if (c === 38) r += '&amp;'; else if (..."]
+    class n9 funcCall
+    n10["loop done"]
+    class n10 execution
+    n11>"return r"]
+    class n11 returnNode
+end
+
+%% Control flow
+n0 --> n1
+n1 --> n2
+n2 --> n3
+n3 --> n4
+n4 --> n5
+n5 --> n6
+n6 -->|yes| n8
+n8 --> n9
+n9 --> n7
+n7 -.->|repeat| n6
+n6 -->|done| n10
+n10 --> n11
+n4 --> n12
+n12 --> n13
+n13 --> n14
+n14 --> n15
+n15 -->|yes| n17
+n17 --> n16
+n16 -.->|repeat| n15
+n15 -->|done| n18
+n18 --> n19
+n19 --> n20
+n20 --> n21
+n21 --> n22
+n22 --> n23
+n23 --> n24
+n24 --> n25
+n25 --> n26
+n26 --> n27
+n27 --> n28

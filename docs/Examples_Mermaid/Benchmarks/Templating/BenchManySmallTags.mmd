@@ -1,0 +1,172 @@
+flowchart TD
+%% BenchManySmallTags
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1[["fork (21 parallel)"]]
+class n1 fork
+n2[["join"]]
+class n2 join
+n3["const t0 = (typeof performance !== 'u..."]
+class n3 execution
+n4["tp.file.title"]
+class n4 interpolation
+n5["tp.file.title"]
+class n5 interpolation
+n6["tp.file.title"]
+class n6 interpolation
+n7["tp.file.title"]
+class n7 interpolation
+n8["tp.file.title"]
+class n8 interpolation
+n9["tp.file.title"]
+class n9 interpolation
+n10["tp.file.title"]
+class n10 interpolation
+n11["tp.file.title"]
+class n11 interpolation
+n12["tp.file.title"]
+class n12 interpolation
+n13["tp.file.title"]
+class n13 interpolation
+n14["tp.file.title"]
+class n14 interpolation
+n15["tp.file.title"]
+class n15 interpolation
+n16["tp.file.title"]
+class n16 interpolation
+n17["tp.file.title"]
+class n17 interpolation
+n18["tp.file.title"]
+class n18 interpolation
+n19["tp.file.title"]
+class n19 interpolation
+n20["tp.file.title"]
+class n20 interpolation
+n21["tp.file.title"]
+class n21 interpolation
+n22["tp.file.title"]
+class n22 interpolation
+n23["tp.file.title"]
+class n23 interpolation
+n24["const t1 = (typeof performance !== 'u..."]
+class n24 execution
+n25["tR += `\n\nTime for this template ren..."]
+class n25 funcCall
+n26(["End"])
+class n26 startEnd
+
+%% Control flow
+n0 --> n1
+n1 ==> n3
+n3 --> n2
+n1 ==> n4
+n4 --> n2
+n1 ==> n5
+n5 --> n2
+n1 ==> n6
+n6 --> n2
+n1 ==> n7
+n7 --> n2
+n1 ==> n8
+n8 --> n2
+n1 ==> n9
+n9 --> n2
+n1 ==> n10
+n10 --> n2
+n1 ==> n11
+n11 --> n2
+n1 ==> n12
+n12 --> n2
+n1 ==> n13
+n13 --> n2
+n1 ==> n14
+n14 --> n2
+n1 ==> n15
+n15 --> n2
+n1 ==> n16
+n16 --> n2
+n1 ==> n17
+n17 --> n2
+n1 ==> n18
+n18 --> n2
+n1 ==> n19
+n19 --> n2
+n1 ==> n20
+n20 --> n2
+n1 ==> n21
+n21 --> n2
+n1 ==> n22
+n22 --> n2
+n1 ==> n23
+n23 --> n2
+n2 --> n24
+n24 --> n25
+n25 --> n26
+
+%% ========================================
+%% PARALLEL EXECUTION ANALYSIS
+%% ========================================
+%%
+%% Parallel Group 1 (n1):
+%% 21 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: t0. Variables read (from previous groups): performance, now, Date. No blocks write to template output (tR) - order doesn't matter
+%%
+%% Blocks in this group:
+%%   - const t0 = (typeof performance !== 'u...
+%%     reads: performance, now, Date
+%%     writes: t0
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)

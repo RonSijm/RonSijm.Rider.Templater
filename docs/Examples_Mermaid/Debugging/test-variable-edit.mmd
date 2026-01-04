@@ -1,0 +1,79 @@
+flowchart TD
+%% test-variable-edit
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1[["fork (2 parallel)"]]
+class n1 fork
+n2[["join"]]
+class n2 join
+n3["let x = 5"]
+class n3 execution
+n4["let y = 10"]
+class n4 execution
+n5[["fork (3 parallel)"]]
+class n5 fork
+n6[["join"]]
+class n6 join
+n7["x"]
+class n7 interpolation
+n8["y"]
+class n8 interpolation
+n9["x + y"]
+class n9 interpolation
+n10(["End"])
+class n10 startEnd
+
+%% Control flow
+n0 --> n1
+n1 ==> n3
+n3 --> n2
+n1 ==> n4
+n4 --> n2
+n2 --> n5
+n5 ==> n7
+n7 --> n6
+n5 ==> n8
+n8 --> n6
+n5 ==> n9
+n9 --> n6
+n6 --> n10
+
+%% ========================================
+%% PARALLEL EXECUTION ANALYSIS
+%% ========================================
+%%
+%% Parallel Group 1 (n1):
+%% 2 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: x, y. No blocks write to template output (tR) - order doesn't matter
+%%
+%% Blocks in this group:
+%%   - let x = 5
+%%     writes: x
+%%   - let y = 10
+%%     writes: y
+%%
+%% Parallel Group 2 (n5):
+%% All 3 blocks only read variables (no writes) - safe to run in parallel. Variables read: x, y, x + y. No blocks write to template output (tR) - order doesn't matter
+%%
+%% Blocks in this group:
+%%   - x
+%%     reads: x
+%%   - y
+%%     reads: y
+%%   - x + y
+%%     reads: x + y

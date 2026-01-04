@@ -1,0 +1,106 @@
+flowchart TD
+%% 04-system-functions
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1[["fork (5 parallel)"]]
+class n1 fork
+n2[["join"]]
+class n2 join
+n3["tp.system.clipboard()"]
+class n3 interpolation
+n4["tp.system.prompt('What is your name?')"]
+class n4 interpolation
+n5["tp.system.prompt('Enter your email', ..."]
+class n5 interpolation
+n6["tp.system.suggester(['Option 1', 'Opt..."]
+class n6 interpolation
+n7["tp.system.multi_suggester(['Task A', ..."]
+class n7 interpolation
+n8["// Get user input"]
+class n8 execution
+n9["const projectName = tp.system.prompt(..."]
+class n9 variable
+n10["const author = tp.system.prompt('Ente..."]
+class n10 variable
+n11[["fork (3 parallel)"]]
+class n11 fork
+n12[["join"]]
+class n12 join
+n13["projectName"]
+class n13 interpolation
+n14["author"]
+class n14 interpolation
+n15["tp.date.now('yyyy-MM-dd')"]
+class n15 interpolation
+n16(["End"])
+class n16 startEnd
+
+%% Control flow
+n0 --> n1
+n1 ==> n3
+n3 --> n2
+n1 ==> n4
+n4 --> n2
+n1 ==> n5
+n5 --> n2
+n1 ==> n6
+n6 --> n2
+n1 ==> n7
+n7 --> n2
+n2 --> n8
+n8 --> n9
+n9 --> n10
+n10 --> n11
+n11 ==> n13
+n13 --> n12
+n11 ==> n14
+n14 --> n12
+n11 ==> n15
+n15 --> n12
+n12 --> n16
+
+%% ========================================
+%% PARALLEL EXECUTION ANALYSIS
+%% ========================================
+%%
+%% Parallel Group 1 (n1):
+%% All 5 blocks are independent - they don't read or write any shared variables. No blocks write to template output (tR) - order doesn't matter
+%%
+%% Blocks in this group:
+%%   - tp.system.clipboard()
+%%     (no variable dependencies)
+%%   - tp.system.prompt("What is your name?")
+%%     (no variable dependencies)
+%%   - tp.system.prompt("Enter your email", ...
+%%     (no variable dependencies)
+%%   - tp.system.suggester(["Option 1", "Opt...
+%%     (no variable dependencies)
+%%   - tp.system.multi_suggester(["Task A", ...
+%%     (no variable dependencies)
+%%
+%% Parallel Group 2 (n11):
+%% All 3 blocks only read variables (no writes) - safe to run in parallel. Variables read: projectName, author. No blocks write to template output (tR) - order doesn't matter
+%%
+%% Blocks in this group:
+%%   - projectName
+%%     reads: projectName
+%%   - author
+%%     reads: author
+%%   - tp.date.now("yyyy-MM-dd")
+%%     (no variable dependencies)

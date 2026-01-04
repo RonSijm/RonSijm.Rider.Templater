@@ -1,0 +1,80 @@
+flowchart TD
+%% BenchLoopRenderLike
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1["const now = () =&gt; (typeof performance..."]
+class n1 execution
+n2["const ITEMS = 5000"]
+class n2 variable
+n3["const rows = Array.from({ length: ITE..."]
+class n3 execution
+n4["const t0 = now()"]
+class n4 variable
+n5["let out = ''"]
+class n5 variable
+n6{{"for (for (let i = 0; i &lt; rows.length; i++))"}}
+class n6 loop
+n7(["next iteration"])
+class n7 loopEnd
+n8["if (!rows[i].active) continue"]
+class n8 funcCall
+n9["out += `- ${rows[i].name} (${rows[i]...."]
+class n9 funcCall
+n10["loop done"]
+class n10 execution
+n11["const t1 = now()"]
+class n11 variable
+n12["tR += '# Loop render-like benchmark\n\n'"]
+class n12 variable
+n13["tR += `Items: ${ITEMS}, active: ${row..."]
+class n13 funcCall
+n14["tR += `Time: ${(t1 - t0).toFixed(3)} ..."]
+class n14 funcCall
+n15["tR += `Output chars: ${out.length}\n\n`"]
+class n15 variable
+n16["tR += '---\n'"]
+class n16 variable
+n17["tR += out.slice(0, 2000)"]
+class n17 funcCall
+n18["// keep the note size reasonable"]
+class n18 execution
+n19(["End"])
+class n19 startEnd
+
+%% Control flow
+n0 --> n1
+n1 --> n2
+n2 --> n3
+n3 --> n4
+n4 --> n5
+n5 --> n6
+n6 -->|yes| n8
+n8 --> n9
+n9 --> n7
+n7 -.->|repeat| n6
+n6 -->|done| n10
+n10 --> n11
+n11 --> n12
+n12 --> n13
+n13 --> n14
+n14 --> n15
+n15 --> n16
+n16 --> n17
+n17 --> n18
+n18 --> n19

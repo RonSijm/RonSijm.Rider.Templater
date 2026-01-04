@@ -1,0 +1,53 @@
+flowchart TD
+%% 1 - Basic Interactive Callout
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1["let calloutType = await tp.system.sug..."]
+class n1 variable
+n2["let foldState = await tp.system.sugge..."]
+class n2 variable
+n3["let title = await tp.system.prompt('O..."]
+class n3 variable
+n4["let calloutContent = await tp.system...."]
+class n4 variable
+n5["calloutContent = calloutContent.repla..."]
+class n5 funcCall
+n6{"if (if (calloutType != null))"}
+class n6 condition
+n7["endif"]
+class n7 execution
+n8["let content = '&gt; [!' + calloutType + ..."]
+class n8 variable
+n9["tR+=content"]
+class n9 variable
+n10(["End"])
+class n10 startEnd
+
+%% Control flow
+n0 --> n1
+n1 --> n2
+n2 --> n3
+n3 --> n4
+n4 --> n5
+n5 --> n6
+n6 -->|yes| n8
+n8 --> n9
+n9 --> n7
+n6 -->|no| n7
+n7 --> n10

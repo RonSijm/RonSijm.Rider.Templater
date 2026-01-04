@@ -1,0 +1,156 @@
+flowchart TD
+%% 05-script-execution
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1[["fork (4 parallel)"]]
+class n1 fork
+n2[["join"]]
+class n2 join
+n3[""]
+class n3 execution
+n4["// This is a script block - it execut..."]
+class n4 execution
+n5["// tR accumulates output that can be ..."]
+class n5 execution
+n6["tR"]
+class n6 interpolation
+n7[["fork (2 parallel)"]]
+class n7 fork
+n8[["join"]]
+class n8 join
+n9["// Generate a numbered list for (let ..."]
+class n9 execution
+n10["tR"]
+class n10 interpolation
+n11[["fork (2 parallel)"]]
+class n11 fork
+n12[["join"]]
+class n12 join
+n13["const hour = new Date().getHours(); i..."]
+class n13 execution
+n14["tR"]
+class n14 interpolation
+n15[["fork (2 parallel)"]]
+class n15 fork
+n16[["join"]]
+class n16 join
+n17["const count = tp.frontmatter.count ||..."]
+class n17 execution
+n18["tR"]
+class n18 interpolation
+n19[["fork (2 parallel)"]]
+class n19 fork
+n20[["join"]]
+class n20 join
+n21["// Async operations are supported asy..."]
+class n21 execution
+n22["tR"]
+class n22 interpolation
+n23(["End"])
+class n23 startEnd
+
+%% Control flow
+n0 --> n1
+n1 ==> n3
+n3 --> n2
+n1 ==> n4
+n4 --> n2
+n1 ==> n5
+n5 --> n2
+n1 ==> n6
+n6 --> n2
+n2 --> n7
+n7 ==> n9
+n9 --> n8
+n7 ==> n10
+n10 --> n8
+n8 --> n11
+n11 ==> n13
+n13 --> n12
+n11 ==> n14
+n14 --> n12
+n12 --> n15
+n15 ==> n17
+n17 --> n16
+n15 ==> n18
+n18 --> n16
+n16 --> n19
+n19 ==> n21
+n21 --> n20
+n19 ==> n22
+n22 --> n20
+n20 --> n23
+
+%% ========================================
+%% PARALLEL EXECUTION ANALYSIS
+%% ========================================
+%%
+%% Parallel Group 1 (n1):
+%% 4 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: message. Variables read (from previous groups): This, is, a, script, block, it, executes, but, doesn, t, output, Hello, from, console, log, accumulates, that, can, be, inserted, later, text, was, added, via, variable, n, You, build, up, content, programmatically
+%%
+%% Blocks in this group:
+%%   - 
+%%     (no variable dependencies)
+%%   - // This is a script block - it execut...
+%%     reads: This, is, a, script, block, it, executes, but, doesn, t, output, Hello, from, console, log
+%%     writes: message
+%%   - // tR accumulates output that can be ...
+%%     reads: accumulates, output, that, can, be, inserted, later, This, text, was, added, via, variable, n, You, build, up, content, programmatically
+%%   - tR
+%%     (no variable dependencies)
+%%
+%% Parallel Group 2 (n7):
+%% 2 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: i. Variables read (from previous groups): Generate, a, numbered, list, Item, number, n
+%%
+%% Blocks in this group:
+%%   - // Generate a numbered list for (let ...
+%%     reads: Generate, a, numbered, list, Item, number, n
+%%     writes: i
+%%   - tR
+%%     (no variable dependencies)
+%%
+%% Parallel Group 3 (n11):
+%% 2 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: hour. Variables read (from previous groups): Date, getHours, Good, morning, afternoon, evening
+%%
+%% Blocks in this group:
+%%   - const hour = new Date().getHours(); i...
+%%     reads: Date, getHours, Good, morning, afternoon, evening
+%%     writes: hour
+%%   - tR
+%%     (no variable dependencies)
+%%
+%% Parallel Group 4 (n15):
+%% 2 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: count, i. Variables read (from previous groups): frontmatter, n, Countdown, Blast, off
+%%
+%% Blocks in this group:
+%%   - const count = tp.frontmatter.count ||...
+%%     reads: frontmatter, n, Countdown, Blast, off
+%%     writes: count, i
+%%   - tR
+%%     (no variable dependencies)
+%%
+%% Parallel Group 5 (n19):
+%% 2 blocks can run in parallel - no block reads a variable written by another block in this group. Variables written: result. Variables read (from previous groups): Async, operations, are, supported, fetchData, data, loaded, n, Result
+%%
+%% Blocks in this group:
+%%   - // Async operations are supported asy...
+%%     reads: Async, operations, are, supported, fetchData, data, loaded, n, Result
+%%     writes: result
+%%   - tR
+%%     (no variable dependencies)

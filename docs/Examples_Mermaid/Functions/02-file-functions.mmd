@@ -1,0 +1,117 @@
+flowchart TD
+%% 02-file-functions
+
+%% Node styles
+classDef startEnd fill:#9f9,stroke:#333,stroke-width:2px
+classDef condition fill:#ffd700,stroke:#333,stroke-width:2px
+classDef loop fill:#87ceeb,stroke:#333,stroke-width:2px
+classDef loopEnd fill:#b0e0e6,stroke:#333,stroke-width:1px
+classDef interpolation fill:#98fb98,stroke:#333,stroke-width:1px
+classDef execution fill:#bbf,stroke:#333,stroke-width:1px
+classDef funcDecl fill:#dda0dd,stroke:#333,stroke-width:1px
+classDef funcCall fill:#ff9,stroke:#333,stroke-width:1px
+classDef variable fill:#fbf,stroke:#333,stroke-width:1px
+classDef returnNode fill:#ffa07a,stroke:#333,stroke-width:1px
+classDef fork fill:#ff6b6b,stroke:#333,stroke-width:2px
+classDef join fill:#4ecdc4,stroke:#333,stroke-width:2px
+classDef error fill:#f66,stroke:#333,stroke-width:2px
+
+n0(["Start"])
+class n0 startEnd
+n1[["fork (13 parallel)"]]
+class n1 fork
+n2[["join"]]
+class n2 join
+n3["tp.file.name"]
+class n3 interpolation
+n4["tp.file.title"]
+class n4 interpolation
+n5["tp.file.path"]
+class n5 interpolation
+n6["tp.file.path(true)"]
+class n6 interpolation
+n7["tp.file.folder()"]
+class n7 interpolation
+n8["tp.file.folder(true)"]
+class n8 interpolation
+n9["tp.file.content"]
+class n9 interpolation
+n10["tp.file.creation_date()"]
+class n10 interpolation
+n11["tp.file.creation_date('yyyy-MM-dd HH:..."]
+class n11 interpolation
+n12["tp.file.last_modified_date()"]
+class n12 interpolation
+n13["tp.file.last_modified_date('MMMM dd, ..."]
+class n13 interpolation
+n14["tp.file.tags"]
+class n14 interpolation
+n15["tp.file.selection()"]
+class n15 interpolation
+n16(["End"])
+class n16 startEnd
+
+%% Control flow
+n0 --> n1
+n1 ==> n3
+n3 --> n2
+n1 ==> n4
+n4 --> n2
+n1 ==> n5
+n5 --> n2
+n1 ==> n6
+n6 --> n2
+n1 ==> n7
+n7 --> n2
+n1 ==> n8
+n8 --> n2
+n1 ==> n9
+n9 --> n2
+n1 ==> n10
+n10 --> n2
+n1 ==> n11
+n11 --> n2
+n1 ==> n12
+n12 --> n2
+n1 ==> n13
+n13 --> n2
+n1 ==> n14
+n14 --> n2
+n1 ==> n15
+n15 --> n2
+n2 --> n16
+
+%% ========================================
+%% PARALLEL EXECUTION ANALYSIS
+%% ========================================
+%%
+%% Parallel Group 1 (n1):
+%% All 13 blocks are independent - they don't read or write any shared variables. No blocks write to template output (tR) - order doesn't matter
+%%
+%% Blocks in this group:
+%%   - tp.file.name
+%%     (no variable dependencies)
+%%   - tp.file.title
+%%     (no variable dependencies)
+%%   - tp.file.path
+%%     (no variable dependencies)
+%%   - tp.file.path(true)
+%%     (no variable dependencies)
+%%   - tp.file.folder()
+%%     (no variable dependencies)
+%%   - tp.file.folder(true)
+%%     (no variable dependencies)
+%%   - tp.file.content
+%%     (no variable dependencies)
+%%   - tp.file.creation_date()
+%%     (no variable dependencies)
+%%   - tp.file.creation_date("yyyy-MM-dd HH:...
+%%     (no variable dependencies)
+%%   - tp.file.last_modified_date()
+%%     (no variable dependencies)
+%%   - tp.file.last_modified_date("MMMM dd, ...
+%%     (no variable dependencies)
+%%   - tp.file.tags
+%%     (no variable dependencies)
+%%   - tp.file.selection()
+%%     (no variable dependencies)

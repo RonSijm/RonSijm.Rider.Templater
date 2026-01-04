@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MaxLineLength:HandlerRegistryGenerator.kt$HandlerRegistryGenerator$writer.appendLine(" fun executeCommand(module: String, function: String, args: List&lt;Any?>, context: ronsijm.templater.parser.TemplateContext): ronsijm.templater.common.CommandResult {")</ID>
+    <ID>MissingPackageDeclaration:HandlerRegistryGenerator.kt$.HandlerRegistryGenerator.kt</ID>
+  </CurrentIssues>
+</SmellBaseline>
